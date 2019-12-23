@@ -18,12 +18,13 @@
   ],
 
   "require": {
-    "yiisoft/yii2": "~2.0.0"
+    "php": ">=7.2.0",
+    "yiisoft/yii2": "~2.0.14"
   },
 
   "autoload": {
     "psr-4": {
-      "smoren\\yii2-query-relation-manager\\": ""
+      "smoren\\yii2_query_relation_manager\\": ""
     }
   }
 }
