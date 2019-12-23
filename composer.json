@@ -1,0 +1,29 @@
+{
+  "name": "smoren/yii2-query-relation-manager",
+
+  "type": "yii2-extension",
+
+  "description": "Class for making queries for getting data from database with relations and filters",
+  "keywords": ["yii2", "relations", "filter", "helper"],
+  "license": "BSD-3-Clause",
+  "support": {
+    "issues": "https://github.com/Smoren/yii2-query-relation-manager/issues",
+    "source": "https://github.com/Smoren/yii2-query-relation-manager"
+  },
+  "authors": [
+    {
+      "name": "Smoren",
+      "email": "ofigate@gmail.com"
+    }
+  ],
+
+  "require": {
+    "yiisoft/yii2": "~2.0.0"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "smoren\\yii2-query-relation-manager\\": ""
+    }
+  }
+}
