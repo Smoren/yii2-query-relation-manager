@@ -1,12 +1,10 @@
 <?php
 
 
-namespace smoren\yii2_query_relation_manager;
+namespace Smoren\Yii2\QueryRelationManager;
 
 
 use yii\db\Query;
-use smoren\yii2_query_relation_manager\exceptions\BadDataException;
-use smoren\yii2_query_relation_manager\exceptions\LogicException;
 
 class QueryRelationManager
 {
@@ -50,8 +48,7 @@ class QueryRelationManager
      * @param string $fieldJoinTo
      * @param string $primaryFieldName
      * @return static
-     * @throws BadDataException
-     * @throws LogicException
+     * @throws QueryRelationManagerException
      */
     public static function select(string $className, string $tableAlias, string $fieldJoinTo = 'id', string $primaryFieldName = 'id'): self
     {
@@ -71,8 +68,7 @@ class QueryRelationManager
      * @param array $extraJoinParams
      * @param string $primaryFieldName
      * @return $this
-     * @throws BadDataException
-     * @throws LogicException
+     * @throws QueryRelationManagerException
      */
     public function withSingle(
         string $containerFieldAlias, string $className, string $joinAs, string $joinTo,
@@ -103,8 +99,7 @@ class QueryRelationManager
      * @param array $extraJoinParams параметры для условия присоединения таблицы
      * @param string $primaryFieldName
      * @return $this
-     * @throws BadDataException
-     * @throws LogicException
+     * @throws QueryRelationManagerException
      */
     public function withMultiple(
         string $containerFieldAlias, string $className, string $joinAs, string $joinTo,
@@ -142,7 +137,7 @@ class QueryRelationManager
 
     /**
      * @return array
-     * @throws BadDataException
+     * @throws QueryRelationManagerException
      */
     public function all(): array
     {
@@ -177,7 +172,7 @@ class QueryRelationManager
                     $isMultiple = true;
                     $joinTo = $this->relationMapMultiple[$joinAs];
                 } else {
-                    throw new LogicException("something went wrong and we don't care...");
+                    throw new QueryRelationManagerException("something went wrong and we don't care...");
                 }
 
                 $joinAsFieldName = $this->mapJoinAsToFieldJoinBy[$joinAs];
@@ -187,11 +182,11 @@ class QueryRelationManager
 
                 foreach($itemsFrom as $id => $itemFrom) {
                     if(!isset($itemFrom[$joinAsFieldName])) {
-                        throw new BadDataException("no field {$joinAsFieldName} found in items of {$joinAs}");
+                        throw new QueryRelationManagerException("no field {$joinAsFieldName} found in items of {$joinAs}");
                     }
 
                     if(!isset($itemsTo[$itemFrom[$joinAsFieldName]])) {
-                        throw new BadDataException(
+                        throw new QueryRelationManagerException(
                             "no item with {$joinAsFieldName} = {$itemFrom[$joinAsFieldName]} ".
                             "found in items of {$joinTo}"
                         );
@@ -202,7 +197,7 @@ class QueryRelationManager
                         foreach($itemsTo as &$itemTo) {
                             if($itemTo[$joinToFieldName] == $itemFrom[$joinAsFieldName]) {
                                 if(isset($itemTo[$containerFieldName])) {
-                                    throw new BadDataException(
+                                    throw new QueryRelationManagerException(
                                         "trying to rewrite single relation to field {$containerFieldName} of {$joinTo}"
                                     );
                                 }
@@ -259,8 +254,7 @@ class QueryRelationManager
      * @param string $alias
      * @param string $fieldJoinTo
      * @param string $primaryFieldName
-     * @throws BadDataException
-     * @throws LogicException
+     * @throws QueryRelationManagerException
      */
     protected function __construct(string $className, string $alias, string $fieldJoinTo, string $primaryFieldName = 'id')
     {
@@ -314,8 +308,7 @@ class QueryRelationManager
      * @param string|null $fieldJoinBy
      * @param string|null $containerFieldAlias
      * @return $this
-     * @throws BadDataException
-     * @throws LogicException
+     * @throws QueryRelationManagerException
      */
     protected function addAliases(
         string $className, string $joinAs, string $fieldJoinTo, string $primaryFieldName,
@@ -325,7 +318,7 @@ class QueryRelationManager
         $tableName = $this->getTableName($className);
 
         if(isset($this->mapJoinAsToTableName[$joinAs])) {
-            throw new LogicException("alias {$joinAs} is already used");
+            throw new QueryRelationManagerException("alias {$joinAs} is already used");
         }
 
         $this->mapJoinAsToTableName[$joinAs] = $tableName;
@@ -371,19 +364,18 @@ class QueryRelationManager
      * @param string $className
      * @param string $joinAs
      * @return $this
-     * @throws BadDataException
-     * @throws LogicException
+     * @throws QueryRelationManagerException
      */
     protected function addFields(string $className, string $joinAs): self
     {
         if(!class_exists($className)) {
-            throw new BadDataException("class {$className} is not defined");
+            throw new QueryRelationManagerException("class {$className} is not defined");
         }
 
         $obj = (new $className());
 
         if(!method_exists($obj, 'getAttributes')) {
-            throw new BadDataException("method {$className}::getAttributes() is not defined");
+            throw new QueryRelationManagerException("method {$className}::getAttributes() is not defined");
         }
 
         $fields = array_keys($obj->getAttributes());
@@ -393,7 +385,7 @@ class QueryRelationManager
         foreach($fields as $fieldName) {
             $fieldNameAliased = "{$joinAs}_{$fieldName}";
             if(isset($this->fieldMap[$fieldNameAliased])) {
-                throw new LogicException("aliased field name {$fieldNameAliased} already used");
+                throw new QueryRelationManagerException("aliased field name {$fieldNameAliased} already used");
             }
 
             $this->fieldMatrix[$joinAs][$fieldName] = $fieldNameAliased;
@@ -407,12 +399,12 @@ class QueryRelationManager
     /**
      * @param string $className
      * @return string
-     * @throws BadDataException
+     * @throws QueryRelationManagerException
      */
     protected function getTableName(string $className): string
     {
         if(!method_exists($className, 'tableName')) {
-            throw new BadDataException("method {$className}::tableName() is not defined");
+            throw new QueryRelationManagerException("method {$className}::tableName() is not defined");
         }
 
         return $className::tableName();
@@ -423,7 +415,7 @@ class QueryRelationManager
      * @param array $fieldNameMap
      * @param string $relatedFieldName
      * @return array
-     * @throws BadDataException
+     * @throws QueryRelationManagerException
      */
     protected function getMapFromPrefixedResult(array $result, array $fieldNameMap, string $relatedFieldName = 'id'): array
     {
@@ -434,14 +426,14 @@ class QueryRelationManager
 
             foreach($fieldNameMap as $fieldNamePrefixed => $fieldName) {
                 if(!array_key_exists($fieldNamePrefixed, $row)) {
-                    throw new BadDataException("no field {$fieldNamePrefixed} in result row");
+                    throw new QueryRelationManagerException("no field {$fieldNamePrefixed} in result row");
                 }
 
                 $item[$fieldName] = $row[$fieldNamePrefixed];
             }
 
             if(!isset($item[$relatedFieldName])) {
-                throw new BadDataException("no field {$relatedFieldName} in result row for mapping");
+                throw new QueryRelationManagerException("no field {$relatedFieldName} in result row for mapping");
             }
 
             $map[$item[$relatedFieldName]] = $item;

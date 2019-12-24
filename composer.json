@@ -1,9 +1,9 @@
 {
   "name": "smoren/yii2-query-relation-manager",
-  "description": "Test",
+  "description": "Class for building queries and making result array with relations (single and multiple)",
   "type": "yii2-extension",
-  "keywords": ["yii2","extension"],
-  "license": "GPL-3.0+",
+  "keywords": ["yii2","extension", "query", "builder", "relation", "ActiveRecord"],
+  "license": "MIT",
   "authors": [
     {
       "name": "Smoren",
@@ -16,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "smoren\\yii2_query_relation_manager\\": ""
+      "Smoren\\Yii2\\QueryRelationManager\\": "src"
     }
   },
   "config": {
