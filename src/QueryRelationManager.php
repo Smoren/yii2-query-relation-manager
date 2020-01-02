@@ -6,48 +6,101 @@ namespace Smoren\Yii2\QueryRelationManager;
 
 use yii\db\Query;
 
+/**
+ * Class for making queries for getting data from database with relations and filters
+ * @package Smoren\Yii2\QueryRelationManager
+ * @author Smoren <ofigate@gmail.com>
+ */
 class QueryRelationManager
 {
     /**
-     * @var Query
+     * @var Query хранит объект билдера запроса
      */
     protected $query;
 
+    /**
+     * @var string псевдоним таблицы, данные из которой хотим получить
+     */
     protected $mainTableAlias;
+
+    /**
+     * @var string имя таблицы, данные из которой хотим получить
+     */
     protected $mainTableName;
 
     /**
-     * @var callable[]
+     * @var callable[] список анонимных функций, которые будут модифицировать запрос
      */
     protected $filters = [];
 
     /**
-     * @var callable[]
+     * @var callable[] карта модификаторов результата (псевдоним таблицы => функция)
      */
     protected $modifierMap = [];
 
+    /**
+     * @var string[] карта имен подключаемых таблиц по их псевдонимам
+     */
     protected $mapJoinAsToTableName = [];
 
+    /**
+     * @var string[] карта первичных ключей подключаемых таблиц по их псевдонимам
+     */
     protected $mapJoinAsToPrimaryFieldName = [];
+
+    /**
+     * @var string[] карта имен полей (на которые ссылается join-связь) по пседонимам подключаемых таблиц
+     */
     protected $mapJoinAsToFieldJoinTo = [];
+
+    /**
+     * @var string[] карта имен полей (по которым ссылается join-связь) по пседонимам подключаемых таблиц
+     */
     protected $mapJoinAsToFieldJoinBy = [];
+
+    /**
+     * @var array карта набора условий подключения таблиц в запросе по псевдонимам подключаемых таблиц
+     */
     protected $relationConditions = [];
 
+    /**
+     * @var string[] карта псевдонимов таблиц по псевдонимам подключаемых к ним таблиц по принципу "один к одному"
+     */
     protected $relationMapSingle = [];
+
+    /**
+     * @var string[] карта псевдонимов таблиц по псевдонимам подключаемых к ним таблиц по принципу "один ко многим"
+     */
     protected $relationMapMultiple = [];
 
+    /**
+     * @var string[][] матрица имен полей в запросе (псевдоним таблицы => имя поля => имя поля с префиксом псевдонима таблицы)
+     */
     protected $fieldMatrix = [];
+
+    /**
+     * @var string[][] обратная матрица имен полей в запросе (псевдоним таблицы => имя поля с префиксом => имя поля)
+     */
     protected $fieldMatrixInverse = [];
+
+    /**
+     * @var string[] карта имен полей таблиц по именам полей с префиксом соответствующих им таблиц
+     */
     protected $fieldMap = [];
+
+    /**
+     * @var string[] карта имени поля, содержащего экземпляр(ы) данных из подключаемой таблицы в родительском массиве 
+     * по псевдониму этой таблицы 
+     */
     protected $mapJoinAsToContainerFieldAlias = [];
 
     /**
-     * Начинает формирование запроса
+     * Начинает формирование данных запроса
      * @param string $className имя класса ActiveRecord, сущности которого нужно получить
-     * @param string $tableAlias короткий псевдоним таблицы в БД для записи отношений
-     * @param string $fieldJoinTo
-     * @param string $primaryFieldName
-     * @return static
+     * @param string $tableAlias псевдоним таблицы в БД для записи отношений
+     * @param string $fieldJoinTo имя поля, на которое будут ссылаться подключаемые сущности
+     * @param string $primaryFieldName имя поля первичного ключа таблицы
+     * @return static новый объект relation-мененджера
      * @throws QueryRelationManagerException
      */
     public static function select(string $className, string $tableAlias, string $fieldJoinTo = 'id', string $primaryFieldName = 'id'): self
@@ -56,17 +109,17 @@ class QueryRelationManager
     }
 
     /**
-     * Добавляет к запросу связь один к одному с другой сущностью ActiveRecord
+     * Добавляет к запросу связь "один к одному" с другой сущностью ActiveRecord
      * @param string $containerFieldAlias название поля, куда будет записана сущность в результате
      * @param string $className имя класса ActiveRecord, сущности которого нужно подключить
-     * @param string $joinAs
-     * @param string $joinTo
-     * @param string $fieldJoinBy
-     * @param string $fieldJoinTo
+     * @param string $joinAs псевдоним для таблицы, связанной с классом
+     * @param string $joinTo псевдоним таблицы, к которой будут подключаться сущности класса
+     * @param string $fieldJoinBy поле, по которому ссылается join-связь
+     * @param string $fieldJoinTo поле, на которое ссылается join-связь
      * @param string $joinType тип присоединения таблицы (inner, left, right, outer)
-     * @param string|null $extraJoinCondition
-     * @param array $extraJoinParams
-     * @param string $primaryFieldName
+     * @param string|null $extraJoinCondition дополнительные условия join-связи
+     * @param array $extraJoinParams параметры дополнительных условий join-связи
+     * @param string $primaryFieldName поле первичного ключа в таблице, по умолчанию — id
      * @return $this
      * @throws QueryRelationManagerException
      */
@@ -87,17 +140,17 @@ class QueryRelationManager
     }
 
     /**
-     * Добавляет к запросу связь один ко многим с другими сущностями ActiveRecord
-     * @param string $containerFieldAlias название поля, куда будут записаны сущности в результате
+     * Добавляет к запросу связь "один ко многим" с другими сущностями ActiveRecord
+     * @param string $containerFieldAlias название поля, куда будет записана сущность в результате
      * @param string $className имя класса ActiveRecord, сущности которого нужно подключить
-     * @param string $joinAs короткий псевдоним таблицы в БД для записи отношений
-     * @param string $joinTo короткий псевдоним таблицы в БД, к которой подключается данный тип сущностей
-     * @param string $fieldJoinBy
-     * @param string $fieldJoinTo
+     * @param string $joinAs псевдоним для таблицы, связанной с классом
+     * @param string $joinTo псевдоним таблицы, к которой будут подключаться сущности класса
+     * @param string $fieldJoinBy поле, по которому ссылается join-связь
+     * @param string $fieldJoinTo поле, на которое ссылается join-связь
      * @param string $joinType тип присоединения таблицы (inner, left, right, outer)
-     * @param string|null $extraJoinCondition
-     * @param array $extraJoinParams параметры для условия присоединения таблицы
-     * @param string $primaryFieldName
+     * @param string|null $extraJoinCondition дополнительные условия join-связи
+     * @param array $extraJoinParams параметры дополнительных условий join-связи
+     * @param string $primaryFieldName поле первичного ключа в таблице, по умолчанию — id
      * @return $this
      * @throws QueryRelationManagerException
      */
@@ -118,6 +171,7 @@ class QueryRelationManager
     }
 
     /**
+     * Добавляет функцию-модификатор запроса
      * @param callable $filter
      * @return $this
      */
@@ -128,6 +182,12 @@ class QueryRelationManager
         return $this;
     }
 
+    /**
+     * Устанавливает для таблицы функцию-модификатор сущности результата
+     * @param string $tableAlias псевдоним таблицы
+     * @param callable $modifier функция-модификатор результата
+     * @return $this
+     */
     public function modify(string $tableAlias, callable $modifier): self
     {
         $this->modifierMap[$tableAlias] = $modifier;
@@ -136,7 +196,8 @@ class QueryRelationManager
     }
 
     /**
-     * @return array
+     * Выполняет запрос к базе, собирает и возвращает результат
+     * @return array массив сущностей главной таблицы с отношениями подключенных таблиц
      * @throws QueryRelationManagerException
      */
     public function all(): array
@@ -239,7 +300,8 @@ class QueryRelationManager
     }
 
     /**
-     * @return string
+     * Возвращает текст SQL-запроса
+     * @return string текст SQL-запроса
      */
     public function getRawSql(): string
     {
@@ -250,10 +312,10 @@ class QueryRelationManager
 
     /**
      * QueryRelationManager constructor.
-     * @param string $className
-     * @param string $alias
-     * @param string $fieldJoinTo
-     * @param string $primaryFieldName
+     * @param string $className имя класса сущности ActiveRecord
+     * @param string $alias псевдоним таблицы сущности
+     * @param string $fieldJoinTo имя поля, на которое будут ссылаться подключаемые сущности
+     * @param string $primaryFieldName имя поля первичного ключа таблицы
      * @throws QueryRelationManagerException
      */
     protected function __construct(string $className, string $alias, string $fieldJoinTo, string $primaryFieldName = 'id')
@@ -264,6 +326,7 @@ class QueryRelationManager
     }
 
     /**
+     * Создает и выстраивает SQL-запрос
      * @return $this
      */
     protected function prepare(): self
@@ -301,12 +364,13 @@ class QueryRelationManager
     }
 
     /**
-     * @param string $className
-     * @param string $joinAs
-     * @param string $fieldJoinTo
-     * @param string $primaryFieldName
-     * @param string|null $fieldJoinBy
-     * @param string|null $containerFieldAlias
+     * Добавляет в карты данные о задействованной в запросе сущности
+     * @param string $className имя класса сущности ActiveRecord
+     * @param string $joinAs псевдоним таблицы
+     * @param string $fieldJoinTo поле, на которое ссылается join-связь
+     * @param string $primaryFieldName поле первичного ключа таблицы
+     * @param string|null $fieldJoinBy поле, по которому ссылается join-связь
+     * @param string|null $containerFieldAlias имя поля-контейнера для сущностей в родительском экземпляре
      * @return $this
      * @throws QueryRelationManagerException
      */
@@ -339,13 +403,14 @@ class QueryRelationManager
     }
 
     /**
-     * @param string $joinAs
-     * @param string $joinTo
-     * @param string $fieldJoinBy
-     * @param string $fieldJoinTo
-     * @param string $joinType
-     * @param string $extraJoinCondition
-     * @param array $extraJoinParams
+     * Добавляет в карту набор условий подключения таблиц в запросе
+     * @param string $joinAs псевдоним подключаемой таблицы
+     * @param string $joinTo псевдоним таблицы, к которой будет осуществлено подключение
+     * @param string $fieldJoinBy поле, по которому ссылается join-связь
+     * @param string $fieldJoinTo поле, на которое ссылается join-связь
+     * @param string $joinType тип присоединения таблицы (inner, left, right, outer)
+     * @param string $extraJoinCondition дополнительные условия join-связи
+     * @param array $extraJoinParams параметры дополнительных условий join-связи
      * @return $this
      */
     protected function addRelationConditions(
@@ -361,8 +426,9 @@ class QueryRelationManager
     }
 
     /**
-     * @param string $className
-     * @param string $joinAs
+     * Добавляет данные о полях таблицы в карту и матрицы
+     * @param string $className имя класса сущности ActiveRecord
+     * @param string $joinAs псевдоним таблицы
      * @return $this
      * @throws QueryRelationManagerException
      */
@@ -397,8 +463,9 @@ class QueryRelationManager
     }
 
     /**
-     * @param string $className
-     * @return string
+     * Возвращает имя таблицы по классу сущности ActiveRecord
+     * @param string $className имя класса
+     * @return string имя таблицы
      * @throws QueryRelationManagerException
      */
     protected function getTableName(string $className): string
@@ -411,10 +478,11 @@ class QueryRelationManager
     }
 
     /**
-     * @param array $result
-     * @param array $fieldNameMap
-     * @param string $relatedFieldName
-     * @return array
+     * Выстраивает из результата запроса карту сущностей по значениям ссылающихся полей с избавлением от префиксов полей
+     * @param array $result результат выполнения запроса к БД
+     * @param array $fieldNameMap карта полей сущности (имя поля с префиксом => имя поля)
+     * @param string $relatedFieldName имя поля, по которому предусмотрена связь
+     * @return array карта сущностей по значениям ссылающихся полей
      * @throws QueryRelationManagerException
      */
     protected function getMapFromPrefixedResult(array $result, array $fieldNameMap, string $relatedFieldName = 'id'): array
