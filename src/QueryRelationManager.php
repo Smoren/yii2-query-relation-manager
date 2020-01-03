@@ -502,8 +502,12 @@ class QueryRelationManager
                 $item[$fieldName] = $row[$fieldNamePrefixed];
             }
 
-            if(!isset($item[$relatedFieldName])) {
+            if(!array_key_exists($relatedFieldName, $item)) {
                 throw new QueryRelationManagerException("no field {$relatedFieldName} in result row for mapping");
+            }
+
+            if($item[$relatedFieldName] === null) {
+                continue;
             }
 
             $map[$item[$relatedFieldName]] = $item;
