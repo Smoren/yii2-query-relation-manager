@@ -4,6 +4,7 @@
 namespace Smoren\Yii2\QueryRelationManager;
 
 
+use yii\db\Connection;
 use yii\db\Query;
 
 /**
@@ -197,14 +198,15 @@ class QueryRelationManager
 
     /**
      * Выполняет запрос к базе, собирает и возвращает результат
+     * @param Connection|null $db подключение к БД
      * @return array массив сущностей главной таблицы с отношениями подключенных таблиц
      * @throws QueryRelationManagerException
      */
-    public function all(): array
+    public function all(?Connection $db = null): array
     {
         $this->prepare();
 
-        $rows = $this->query->all();
+        $rows = $this->query->all($db);
 
         $maps = [];
 
