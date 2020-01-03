@@ -248,12 +248,12 @@ class QueryRelationManager
                         throw new QueryRelationManagerException("no field {$joinAsFieldName} found in items of {$joinAs}");
                     }
 
-                    if(!isset($itemsTo[$itemFrom[$joinAsFieldName]])) {
-                        throw new QueryRelationManagerException(
-                            "no item with {$joinAsFieldName} = {$itemFrom[$joinAsFieldName]} ".
-                            "found in items of {$joinTo}"
-                        );
-                    }
+                    //if(!isset($itemsTo[$itemFrom[$joinAsFieldName]])) {
+                    //    throw new QueryRelationManagerException(
+                    //        "no item with {$joinAsFieldName} = {$itemFrom[$joinAsFieldName]} ".
+                    //        "found in items of {$joinTo}"
+                    //    );
+                    //}
 
                     if(!$isMultiple) {
                         $joinToFieldName = $this->mapJoinAsToFieldJoinTo[$joinAs];
