@@ -39,6 +39,189 @@ $result = QueryRelationManager::select(Address::class, 'a')
     ->all();
 
 print_r($result);
+/*Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [city_id] => 1
+            [name] => Tverskaya st., 7
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 1
+                            [address_id] => 1
+                            [name] => TC Tverskoy
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 1
+                                            [place_id] => 1
+                                            [username] => Ivan Mustafaevich
+                                            [mark] => 3
+                                            [text] => Not bad, not good
+                                        )
+
+                                    [1] => Array
+                                        (
+                                            [id] => 2
+                                            [place_id] => 1
+                                            [username] => Peter
+                                            [mark] => 5
+                                            [text] => Good place
+                                        )
+
+                                    [2] => Array
+                                        (
+                                            [id] => 3
+                                            [place_id] => 1
+                                            [username] => Mark
+                                            [mark] => 1
+                                            [text] => Bad place
+                                        )
+
+                                )
+
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 2
+                            [address_id] => 1
+                            [name] => Tverskaya cafe
+                        )
+
+                )
+
+            [city] => Array
+                (
+                    [id] => 1
+                    [name] => Moscow
+                )
+
+        )
+
+    [1] => Array
+        (
+            [id] => 2
+            [city_id] => 1
+            [name] => Schipok st., 1
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 3
+                            [address_id] => 2
+                            [name] => Stasova music school
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 4
+                                            [place_id] => 3
+                                            [username] => Ann
+                                            [mark] => 5
+                                            [text] => The best music school!
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+            [city] => Array
+                (
+                    [id] => 1
+                    [name] => Moscow
+                )
+
+        )
+
+    [2] => Array
+        (
+            [id] => 3
+            [city_id] => 2
+            [name] => Mayakovskogo st., 12
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 5
+                            [address_id] => 3
+                            [name] => Mayakovskiy Store
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 5
+                                            [place_id] => 5
+                                            [username] => Stas
+                                            [mark] => 4
+                                            [text] => Rather good place
+                                        )
+
+                                )
+
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 4
+                            [address_id] => 3
+                            [name] => Hostel on Mayakovskaya
+                        )
+
+                )
+
+            [city] => Array
+                (
+                    [id] => 2
+                    [name] => St. Petersburg
+                )
+
+        )
+
+    [3] => Array
+        (
+            [id] => 4
+            [city_id] => 2
+            [name] => Galernaya st., 3
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 6
+                            [address_id] => 4
+                            [name] => Cafe on Galernaya
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 6
+                                            [place_id] => 6
+                                            [username] => Stas
+                                            [mark] => 3
+                                            [text] => Small menu, long wait
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+            [city] => Array
+                (
+                    [id] => 2
+                    [name] => St. Petersburg
+                )
+
+        )
+
+)*/
 
 
 // Выбираем места с адресом и городом, а также комментариями, причем:
@@ -80,6 +263,162 @@ $result = QueryRelationManager::select(Place::class, 'p')
     ->all();
 
 print_r($result);
+/*Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [address_id] => 1
+            [name] => TC Tverskoy
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 1
+                            [place_id] => 1
+                            [username] => Ivan Mustafaevich
+                            [mark] => 3
+                            [text] => Not bad, not good
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 2
+                            [place_id] => 1
+                            [username] => Peter
+                            [mark] => 5
+                            [text] => Good place
+                        )
+
+                )
+
+            [comments_count] => 2
+            [mark_five_count] => 1
+            [mark_average] => 4
+            [address] => Array
+                (
+                    [id] => 1
+                    [city_id] => 1
+                    [name] => Tverskaya st., 7
+                    [city] => Array
+                        (
+                            [id] => 1
+                            [name] => Moscow
+                        )
+
+                )
+
+        )
+
+    [1] => Array
+        (
+            [id] => 3
+            [address_id] => 2
+            [name] => Stasova music school
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 4
+                            [place_id] => 3
+                            [username] => Ann
+                            [mark] => 5
+                            [text] => The best music school!
+                        )
+
+                )
+
+            [comments_count] => 1
+            [mark_five_count] => 1
+            [mark_average] => 5
+            [address] => Array
+                (
+                    [id] => 2
+                    [city_id] => 1
+                    [name] => Schipok st., 1
+                    [city] => Array
+                        (
+                            [id] => 1
+                            [name] => Moscow
+                        )
+
+                )
+
+        )
+
+    [2] => Array
+        (
+            [id] => 5
+            [address_id] => 3
+            [name] => Mayakovskiy Store
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 5
+                            [place_id] => 5
+                            [username] => Stas
+                            [mark] => 4
+                            [text] => Rather good place
+                        )
+
+                )
+
+            [comments_count] => 1
+            [mark_five_count] => 0
+            [mark_average] => 4
+            [address] => Array
+                (
+                    [id] => 3
+                    [city_id] => 2
+                    [name] => Mayakovskogo st., 12
+                    [city] => Array
+                        (
+                            [id] => 2
+                            [name] => St. Petersburg
+                        )
+
+                )
+
+        )
+
+    [3] => Array
+        (
+            [id] => 6
+            [address_id] => 4
+            [name] => Cafe on Galernaya
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 6
+                            [place_id] => 6
+                            [username] => Stas
+                            [mark] => 3
+                            [text] => Small menu, long wait
+                        )
+
+                )
+
+            [comments_count] => 1
+            [mark_five_count] => 0
+            [mark_average] => 3
+            [address] => Array
+                (
+                    [id] => 4
+                    [city_id] => 2
+                    [name] => Galernaya st., 3
+                    [city] => Array
+                        (
+                            [id] => 2
+                            [name] => St. Petersburg
+                        )
+
+                )
+
+        )
+
+)*/
 
 
 // Получаем города из списка ID с адресами
@@ -92,6 +431,39 @@ $result = QueryRelationManager::select(City::class, 'c')
     ->all();
 
 print_r($result);
+/*Array
+(
+    [0] => Array
+        (
+            [id] => 2
+            [name] => St. Petersburg
+            [addresses] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 3
+                            [city_id] => 2
+                            [name] => Mayakovskogo st., 12
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 4
+                            [city_id] => 2
+                            [name] => Galernaya st., 3
+                        )
+
+                )
+
+        )
+
+    [1] => Array
+        (
+            [id] => 3
+            [name] => Samara
+        )
+
+)*/
 
 ```
 
