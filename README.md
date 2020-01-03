@@ -9,7 +9,7 @@ composer require smoren/yii2-query-relation-manager
 
 ### Примеры использования
 
-Будем использоват следующие таблицы в БД с наборами полей:
+Будем использовать следующие таблицы в БД с наборами полей:
 
  - **city** (id, name)
  - **address** (id, city_id, name)
