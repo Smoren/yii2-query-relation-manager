@@ -41,9 +41,9 @@ $result = QueryRelationManager::select(Address::class, 'a')
 print_r($result);
 
 
-// Выбираем места с адресом и городом, а также комментариями, при чем:
+// Выбираем места с адресом и городом, а также комментариями, причем:
 // - комментарии имеют оценку не ниже 3
-// - если подходящх комментариев нет, место не попадает в выборку (inner join)
+// - если подходящих комментариев нет, место не попадает в выборку (inner join)
 // - для каждого места считаем количество комментариев, количество оценок "5" и среднюю оценку среди оценок не ниже 3
 $result = QueryRelationManager::select(Place::class, 'p')
     ->withSingle('address', Address::class, 'a', 'p', 'id', 'address_id')
@@ -82,7 +82,7 @@ $result = QueryRelationManager::select(Place::class, 'p')
 print_r($result);
 
 
-// Получаем города из списка с адресами
+// Получаем города из списка ID с адресами
 $cityIds = City::find()->limit(2)->offset(1)->select('id')->column();
 $result = QueryRelationManager::select(City::class, 'c')
     ->withMultiple('addresses', Address::class, 'a', 'c', 'city_id', 'id')
