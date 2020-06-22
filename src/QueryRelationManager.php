@@ -440,13 +440,12 @@ class QueryRelationManager
             throw new QueryRelationManagerException("class {$className} is not defined");
         }
 
-        $obj = (new $className());
 
-        if(!method_exists($obj, 'getAttributes')) {
-            throw new QueryRelationManagerException("method {$className}::getAttributes() is not defined");
+        if(!method_exists($className, 'getTableSchema')) {
+            throw new QueryRelationManagerException("method {$className}::getTableSchema() is not defined");
         }
 
-        $fields = array_keys($obj->getAttributes());
+        $fields = array_keys($className::getTableSchema()->columns);
 
         $this->fieldMatrix[$joinAs] = [];
 
