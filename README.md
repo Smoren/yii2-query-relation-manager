@@ -91,6 +91,10 @@ print_r($result);
                             [id] => 2
                             [address_id] => 1
                             [name] => Tverskaya cafe
+                            [comments] => Array
+                                (
+                                )
+
                         )
 
                 )
@@ -149,6 +153,17 @@ print_r($result);
                 (
                     [0] => Array
                         (
+                            [id] => 4
+                            [address_id] => 3
+                            [name] => Hostel on Mayakovskaya
+                            [comments] => Array
+                                (
+                                )
+
+                        )
+
+                    [1] => Array
+                        (
                             [id] => 5
                             [address_id] => 3
                             [name] => Mayakovskiy Store
@@ -165,13 +180,6 @@ print_r($result);
 
                                 )
 
-                        )
-
-                    [1] => Array
-                        (
-                            [id] => 4
-                            [address_id] => 3
-                            [name] => Hostel on Mayakovskaya
                         )
 
                 )
@@ -292,9 +300,6 @@ print_r($result);
 
                 )
 
-            [comments_count] => 2
-            [mark_five_count] => 1
-            [mark_average] => 4
             [address] => Array
                 (
                     [id] => 1
@@ -308,6 +313,9 @@ print_r($result);
 
                 )
 
+            [comments_count] => 2
+            [mark_five_count] => 1
+            [mark_average] => 4
         )
 
     [1] => Array
@@ -328,9 +336,6 @@ print_r($result);
 
                 )
 
-            [comments_count] => 1
-            [mark_five_count] => 1
-            [mark_average] => 5
             [address] => Array
                 (
                     [id] => 2
@@ -344,6 +349,9 @@ print_r($result);
 
                 )
 
+            [comments_count] => 1
+            [mark_five_count] => 1
+            [mark_average] => 5
         )
 
     [2] => Array
@@ -364,9 +372,6 @@ print_r($result);
 
                 )
 
-            [comments_count] => 1
-            [mark_five_count] => 0
-            [mark_average] => 4
             [address] => Array
                 (
                     [id] => 3
@@ -380,6 +385,9 @@ print_r($result);
 
                 )
 
+            [comments_count] => 1
+            [mark_five_count] => 0
+            [mark_average] => 4
         )
 
     [3] => Array
@@ -400,9 +408,6 @@ print_r($result);
 
                 )
 
-            [comments_count] => 1
-            [mark_five_count] => 0
-            [mark_average] => 3
             [address] => Array
                 (
                     [id] => 4
@@ -416,6 +421,9 @@ print_r($result);
 
                 )
 
+            [comments_count] => 1
+            [mark_five_count] => 0
+            [mark_average] => 3
         )
 
 )*/
@@ -426,7 +434,7 @@ $cityIds = City::find()->limit(2)->offset(1)->select('id')->column();
 $result = QueryRelationManager::select(City::class, 'c')
     ->withMultiple('addresses', Address::class, 'a', 'c', 'city_id', 'id')
     ->filter(function(Query $q) use ($cityIds) {
-        $q->andWhere(['c.id' => $cityIds]);
+        $q->andWhere(['c.id' => $cityIds])->orderBy(['a.id' => SORT_ASC]);
     })
     ->all();
 
@@ -434,6 +442,16 @@ print_r($result);
 /*Array
 (
     [0] => Array
+        (
+            [id] => 3
+            [name] => Samara
+            [addresses] => Array
+                (
+                )
+
+        )
+
+    [1] => Array
         (
             [id] => 2
             [name] => St. Petersburg
@@ -455,12 +473,6 @@ print_r($result);
 
                 )
 
-        )
-
-    [1] => Array
-        (
-            [id] => 3
-            [name] => Samara
         )
 
 )*/

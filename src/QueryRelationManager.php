@@ -75,6 +75,18 @@ class QueryRelationManager
     protected $relationMapMultiple = [];
 
     /**
+     * @var string[][] карта массивов имен полей-контейнеров по псевдонимам таблиц, в данные которых эти контейнеры должны быть встроены
+     * (псевдоним таблицы => [имя поля, имя поля, ...])
+     */
+    protected $relationSingleFieldMap = [];
+
+    /**
+     * @var string[][] карта массивов имен полей-контейнеров по псевдонимам таблиц, в данные которых эти контейнеры должны быть встроены
+     * (псевдоним таблицы => [имя поля, имя поля, ...])
+     */
+    protected $relationMultipleFieldMap = [];
+
+    /**
      * @var string[][] матрица имен полей в запросе (псевдоним таблицы => имя поля => имя поля с префиксом псевдонима таблицы)
      */
     protected $fieldMatrix = [];
@@ -90,8 +102,8 @@ class QueryRelationManager
     protected $fieldMap = [];
 
     /**
-     * @var string[] карта имени поля, содержащего экземпляр(ы) данных из подключаемой таблицы в родительском массиве 
-     * по псевдониму этой таблицы 
+     * @var string[] карта имени поля, содержащего экземпляр(ы) данных из подключаемой таблицы в родительском массиве
+     * по псевдониму этой таблицы
      */
     protected $mapJoinAsToContainerFieldAlias = [];
 
@@ -130,6 +142,11 @@ class QueryRelationManager
         ?string $extraJoinCondition = null, array $extraJoinParams = [], string $primaryFieldName = 'id'
     ): self
     {
+        if(!isset($this->relationSingleFieldMap[$joinTo])) {
+            $this->relationSingleFieldMap[$joinTo] = [];
+        }
+        $this->relationSingleFieldMap[$joinTo][] = $containerFieldAlias;
+
         $this->addAliases($className, $joinAs, $fieldJoinTo, $primaryFieldName, $fieldJoinBy, $containerFieldAlias);
         $this->addRelationConditions(
             $joinAs, $joinTo, $fieldJoinBy, $fieldJoinTo, $joinType, $extraJoinCondition, $extraJoinParams
@@ -161,6 +178,11 @@ class QueryRelationManager
         ?string $extraJoinCondition = null, array $extraJoinParams = [], string $primaryFieldName = 'id'
     ): self
     {
+        if(!isset($this->relationMultipleFieldMap[$joinTo])) {
+            $this->relationMultipleFieldMap[$joinTo] = [];
+        }
+        $this->relationMultipleFieldMap[$joinTo][] = $containerFieldAlias;
+
         $this->addAliases($className, $joinAs, $fieldJoinTo, $primaryFieldName, $fieldJoinBy, $containerFieldAlias);
         $this->addRelationConditions(
             $joinAs, $joinTo, $fieldJoinBy, $fieldJoinTo, $joinType, $extraJoinCondition, $extraJoinParams
@@ -221,75 +243,94 @@ class QueryRelationManager
 
         $count = count($mapJoinAsToContainerFieldAliasReverse);
 
-        if(!$count < 2) {
-            for($i=0; $i<$count-1; $i++) {
-                $joinAs = key($mapJoinAsToContainerFieldAliasReverse);
-                $containerFieldName = current($mapJoinAsToContainerFieldAliasReverse);
+        for($i=0; $i<$count-1; $i++) {
+            $joinAs = key($mapJoinAsToContainerFieldAliasReverse);
+            $containerFieldName = current($mapJoinAsToContainerFieldAliasReverse);
 
-                if(isset($this->relationMapSingle[$joinAs])) {
-                    // сценарий single
-                    $isMultiple = false;
-                    $joinTo = $this->relationMapSingle[$joinAs];
-                } elseif(isset($this->relationMapMultiple[$joinAs])) {
-                    // сценарий multiple
-                    $isMultiple = true;
-                    $joinTo = $this->relationMapMultiple[$joinAs];
-                } else {
-                    throw new QueryRelationManagerException("something went wrong and we don't care...");
-                }
+            if(isset($this->relationMapSingle[$joinAs])) {
+                // сценарий single
+                $isMultiple = false;
+                $joinTo = $this->relationMapSingle[$joinAs];
+            } elseif(isset($this->relationMapMultiple[$joinAs])) {
+                // сценарий multiple
+                $isMultiple = true;
+                $joinTo = $this->relationMapMultiple[$joinAs];
+            } else {
+                throw new QueryRelationManagerException("something went wrong and we don't care...");
+            }
 
-                $joinAsFieldName = $this->mapJoinAsToFieldJoinBy[$joinAs];
+            $joinAsFieldName = $this->mapJoinAsToFieldJoinBy[$joinAs];
 
-                $itemsFrom = &$maps[$joinAs];
-                $itemsTo = &$maps[$joinTo];
+            $itemsFrom = &$maps[$joinAs];
+            $itemsTo = &$maps[$joinTo];
 
-                foreach($itemsFrom as $id => $itemFrom) {
-                    if(!isset($itemFrom[$joinAsFieldName])) {
-                        throw new QueryRelationManagerException("no field {$joinAsFieldName} found in items of {$joinAs}");
-                    }
-
-                    //if(!isset($itemsTo[$itemFrom[$joinAsFieldName]])) {
-                    //    throw new QueryRelationManagerException(
-                    //        "no item with {$joinAsFieldName} = {$itemFrom[$joinAsFieldName]} ".
-                    //        "found in items of {$joinTo}"
-                    //    );
-                    //}
-
-                    if(!$isMultiple) {
-                        $joinToFieldName = $this->mapJoinAsToFieldJoinTo[$joinAs];
-                        foreach($itemsTo as &$itemTo) {
-                            if($itemTo[$joinToFieldName] == $itemFrom[$joinAsFieldName]) {
-                                if(isset($itemTo[$containerFieldName])) {
-                                    throw new QueryRelationManagerException(
-                                        "trying to rewrite single relation to field {$containerFieldName} of {$joinTo}"
-                                    );
-                                }
-
-                                if(isset($this->modifierMap[$joinAs])) {
-                                    ($this->modifierMap[$joinAs])($itemFrom, $itemTo);
-                                }
-
-                                $itemTo[$containerFieldName] = $itemFrom;
+            if(isset($this->relationMultipleFieldMap[$joinTo]) || isset($this->relationSingleFieldMap[$joinTo])) {
+                foreach($itemsTo as &$joinToRow) {
+                    if(isset($this->relationMultipleFieldMap[$joinTo])) {
+                        foreach($this->relationMultipleFieldMap[$joinTo] as $fieldNameMultiple) {
+                            if(!isset($joinToRow[$fieldNameMultiple])) {
+                                $joinToRow[$fieldNameMultiple] = [];
                             }
                         }
-                        unset($itemTo);
-                    } else {
-                        $itemTo = &$itemsTo[$itemFrom[$joinAsFieldName]];
+                    }
 
-                        if(!isset($itemTo[$containerFieldName])) {
-                            $itemTo[$containerFieldName] = [];
+                    if(isset($this->relationSingleFieldMap[$joinTo])) {
+                        foreach($this->relationSingleFieldMap[$joinTo] as $fieldNameSingle) {
+                            if(!isset($joinToRow[$fieldNameSingle])) {
+                                $joinToRow[$fieldNameSingle] = null;
+                            }
                         }
-
-                        if(isset($this->modifierMap[$joinAs])) {
-                            ($this->modifierMap[$joinAs])($itemFrom, $itemTo);
-                        }
-
-                        $itemTo[$containerFieldName][] = $itemFrom;
                     }
                 }
-
-                next($mapJoinAsToContainerFieldAliasReverse);
+                unset($joinToRow);
             }
+
+            foreach($itemsFrom as $id => $itemFrom) {
+                if(!isset($itemFrom[$joinAsFieldName])) {
+                    throw new QueryRelationManagerException("no field {$joinAsFieldName} found in items of {$joinAs}");
+                }
+
+                //if(!isset($itemsTo[$itemFrom[$joinAsFieldName]])) {
+                //    throw new QueryRelationManagerException(
+                //        "no item with {$joinAsFieldName} = {$itemFrom[$joinAsFieldName]} ".
+                //        "found in items of {$joinTo}"
+                //    );
+                //}
+
+                if(!$isMultiple) {
+                    $joinToFieldName = $this->mapJoinAsToFieldJoinTo[$joinAs];
+                    foreach($itemsTo as &$itemTo) {
+                        if($itemTo[$joinToFieldName] == $itemFrom[$joinAsFieldName]) {
+                            if(isset($itemTo[$containerFieldName])) {
+                                throw new QueryRelationManagerException(
+                                    "trying to rewrite single relation to field {$containerFieldName} of {$joinTo}"
+                                );
+                            }
+
+                            if(isset($this->modifierMap[$joinAs])) {
+                                ($this->modifierMap[$joinAs])($itemFrom, $itemTo);
+                            }
+
+                            $itemTo[$containerFieldName] = $itemFrom;
+                        }
+                    }
+                    unset($itemTo);
+                } else {
+                    $itemTo = &$itemsTo[$itemFrom[$joinAsFieldName]];
+
+                    if(!isset($itemTo[$containerFieldName])) {
+                        $itemTo[$containerFieldName] = [];
+                    }
+
+                    if(isset($this->modifierMap[$joinAs])) {
+                        ($this->modifierMap[$joinAs])($itemFrom, $itemTo);
+                    }
+
+                    $itemTo[$containerFieldName][] = $itemFrom;
+                }
+            }
+
+            next($mapJoinAsToContainerFieldAliasReverse);
         }
 
         if(isset($this->modifierMap[$this->mainTableAlias])) {
