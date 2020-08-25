@@ -20,14 +20,19 @@ class QueryRelationManager
     protected $query;
 
     /**
-     * @var string псевдоним таблицы, данные из которой хотим получить
+     * @var string псевдоним основной таблицы запроса
      */
     protected $mainTableAlias;
 
     /**
-     * @var string имя таблицы, данные из которой хотим получить
+     * @var string имя основной таблицы запроса
      */
     protected $mainTableName;
+
+    /**
+     * @var string первичный ключ основной таблицы запроса
+     */
+    protected $mainTablePkField;
 
     /**
      * @var callable[] список анонимных функций, которые будут модифицировать запрос
@@ -343,36 +348,10 @@ class QueryRelationManager
     }
 
     /**
-     * Возвращает текст SQL-запроса
-     * @return string текст SQL-запроса
-     */
-    public function getRawSql(): string
-    {
-        $this->prepare();
-
-        return $this->query->createCommand()->getRawSql();
-    }
-
-    /**
-     * QueryRelationManager constructor.
-     * @param string $className имя класса сущности ActiveRecord
-     * @param string $alias псевдоним таблицы сущности
-     * @param string $fieldJoinTo имя поля, на которое будут ссылаться подключаемые сущности
-     * @param string $primaryFieldName имя поля первичного ключа таблицы
-     * @throws QueryRelationManagerException
-     */
-    protected function __construct(string $className, string $alias, string $fieldJoinTo, string $primaryFieldName = 'id')
-    {
-        $this->mainTableAlias = $alias;
-        $this->mainTableName = $this->getTableName($className);
-        $this->addAliases($className, $alias, $fieldJoinTo, $primaryFieldName);
-    }
-
-    /**
      * Создает и выстраивает SQL-запрос
-     * @return $this
+     * @return Query
      */
-    protected function prepare(): self
+    public function prepare(): Query
     {
         $this->query = new Query();
 
@@ -403,7 +382,43 @@ class QueryRelationManager
             $modifier($this->query);
         }
 
-        return $this;
+        return $this->query;
+    }
+
+    /**
+     * Возвращает текст SQL-запроса
+     * @return string текст SQL-запроса
+     */
+    public function getRawSql(): string
+    {
+        $this->prepare();
+
+        return $this->query->createCommand()->getRawSql();
+    }
+
+    /**
+     * Возвращает первичный ключ основной таблицы с префиксом в виде алиаса этой таблицы
+     * @return string
+     */
+    public function getMainTablePkField(): string
+    {
+        return "{$this->mainTableAlias}.{$this->mainTableField}";
+    }
+
+    /**
+     * QueryRelationManager constructor.
+     * @param string $className имя класса сущности ActiveRecord
+     * @param string $alias псевдоним таблицы сущности
+     * @param string $fieldJoinTo имя поля, на которое будут ссылаться подключаемые сущности
+     * @param string $primaryFieldName имя поля первичного ключа таблицы
+     * @throws QueryRelationManagerException
+     */
+    protected function __construct(string $className, string $alias, string $fieldJoinTo, string $primaryFieldName = 'id')
+    {
+        $this->mainTableAlias = $alias;
+        $this->mainTableName = $this->getTableName($className);
+        $this->mainTableField = $fieldJoinTo;
+        $this->addAliases($className, $alias, $fieldJoinTo, $primaryFieldName);
     }
 
     /**
