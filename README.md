@@ -26,6 +26,7 @@ composer require smoren/yii2-query-relation-manager
 <?php
 
 use Smoren\Yii2\QueryRelationManager\QueryRelationManager;
+use Smoren\Yii2\QueryRelationManager\QueryRelationDataProvider;
 use app\models\City;
 use app\models\Address;
 use app\models\Place;
@@ -476,6 +477,73 @@ print_r($result);
         )
 
 )*/
+
+
+// Используем QueryRelationDataProvider для пагинации
+$qrm = QueryRelationManager::select(City::class, 'c')
+    ->withMultiple('addresses', Address::class, 'a', 'c', 'city_id', 'id');
+
+$dataProvider = new QueryRelationDataProvider([
+    'queryRelationManager' => $qrm,
+    'pagination' => [
+        'pageSize' => 2,
+        'page' => 0,
+    ],
+]);
+
+print_r($dataProvider->getModels());
+/*Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [name] => Moscow
+            [addresses] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 2
+                            [city_id] => 1
+                            [name] => Schipok st., 1
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 1
+                            [city_id] => 1
+                            [name] => Tverskaya st., 7
+                        )
+
+                )
+
+        )
+
+    [1] => Array
+        (
+            [id] => 2
+            [name] => St. Petersburg
+            [addresses] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 4
+                            [city_id] => 2
+                            [name] => Galernaya st., 3
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 3
+                            [city_id] => 2
+                            [name] => Mayakovskogo st., 12
+                        )
+
+                )
+
+        )
+
+)*/
+
 
 ```
 
