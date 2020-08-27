@@ -48,6 +48,7 @@ class QueryRelationDataProvider extends BaseDataProvider
 
             $ids = $this->queryRelationManager
                 ->prepare()
+                ->getQuery()
                 ->select($pkField)
                 ->distinct()
                 ->limit($limit)
@@ -94,6 +95,7 @@ class QueryRelationDataProvider extends BaseDataProvider
     {
         return $this->queryRelationManager
             ->prepare()
+            ->getQuery()
             ->select($this->queryRelationManager->getMainTablePkField())
             ->distinct()
             ->count();

@@ -1,21 +1,18 @@
 <?php
 
 
-namespace Smoren\Yii2\QueryRelationManager;
+namespace Smoren\Yii2\QueryRelationManager\Base;
 
-
-use yii\db\Connection;
-use yii\db\Query;
 
 /**
  * Class for making queries for getting data from database with relations and filters
  * @package Smoren\Yii2\QueryRelationManager
  * @author Smoren <ofigate@gmail.com>
  */
-class QueryRelationManager
+abstract class QueryRelationManager
 {
     /**
-     * @var Query хранит объект билдера запроса
+     * @var QueryWrapperInterface хранит объект билдера запроса
      */
     protected $query;
 
@@ -225,11 +222,11 @@ class QueryRelationManager
 
     /**
      * Выполняет запрос к базе, собирает и возвращает результат
-     * @param Connection|null $db подключение к БД
+     * @param mixed|null $db подключение к БД
      * @return array массив сущностей главной таблицы с отношениями подключенных таблиц
      * @throws QueryRelationManagerException
      */
-    public function all(?Connection $db = null): array
+    public function all($db = null): array
     {
         $this->prepare();
 
@@ -349,11 +346,11 @@ class QueryRelationManager
 
     /**
      * Создает и выстраивает SQL-запрос
-     * @return Query
+     * @return QueryWrapperInterface
      */
-    public function prepare(): Query
+    public function prepare(): QueryWrapperInterface
     {
-        $this->query = new Query();
+        $this->query = $this->createQuery();
 
         $arSelect = [];
         foreach($this->fieldMatrix as $joinAs => $fieldsMap) {
@@ -393,7 +390,7 @@ class QueryRelationManager
     {
         $this->prepare();
 
-        return $this->query->createCommand()->getRawSql();
+        return $this->query->getRawSql();
     }
 
     /**
@@ -404,6 +401,20 @@ class QueryRelationManager
     {
         return "{$this->mainTableAlias}.{$this->mainTableField}";
     }
+
+    /**
+     * Возвращает имя таблицы по классу сущности ActiveRecord
+     * @param string $className имя класса
+     * @return string имя таблицы
+     * @throws QueryRelationManagerException
+     */
+    abstract protected function getTableName(string $className): string;
+
+    /**
+     * Создает объект запроса
+     * @return QueryWrapperInterface
+     */
+    abstract protected function createQuery(): QueryWrapperInterface;
 
     /**
      * QueryRelationManager constructor.
@@ -517,21 +528,6 @@ class QueryRelationManager
         }
 
         return $this;
-    }
-
-    /**
-     * Возвращает имя таблицы по классу сущности ActiveRecord
-     * @param string $className имя класса
-     * @return string имя таблицы
-     * @throws QueryRelationManagerException
-     */
-    protected function getTableName(string $className): string
-    {
-        if(!method_exists($className, 'tableName')) {
-            throw new QueryRelationManagerException("method {$className}::tableName() is not defined");
-        }
-
-        return $className::tableName();
     }
 
     /**
