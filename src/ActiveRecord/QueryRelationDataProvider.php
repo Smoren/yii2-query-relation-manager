@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Smoren\Yii2\QueryRelationManager;
+namespace Smoren\Yii2\QueryRelationManager\ActiveRecord;
 
 
 use yii\data\BaseDataProvider;

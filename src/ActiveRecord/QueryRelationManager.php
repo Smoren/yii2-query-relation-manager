@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Smoren\Yii2\QueryRelationManager;
+namespace Smoren\Yii2\QueryRelationManager\ActiveRecord;
 
 
-use Smoren\Yii2\QueryRelationManager\ActiveRecord\QueryWrapper;
+use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerBase;
 use Smoren\Yii2\QueryRelationManager\Base\QueryWrapperInterface;
 use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
 
@@ -13,7 +13,7 @@ use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
  * @package Smoren\Yii2\QueryRelationManager
  * @author Smoren <ofigate@gmail.com>
  */
-class QueryRelationManager extends \Smoren\Yii2\QueryRelationManager\Base\QueryRelationManager
+class QueryRelationManager extends QueryRelationManagerBase
 {
 
     /**

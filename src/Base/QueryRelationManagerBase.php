@@ -9,7 +9,7 @@ namespace Smoren\Yii2\QueryRelationManager\Base;
  * @package Smoren\Yii2\QueryRelationManager
  * @author Smoren <ofigate@gmail.com>
  */
-abstract class QueryRelationManager
+abstract class QueryRelationManagerBase
 {
     /**
      * @var QueryWrapperInterface хранит объект билдера запроса
@@ -372,11 +372,11 @@ abstract class QueryRelationManager
                 $condition .= " {$extraJoinCondition}";
             }
 
-            $this->query->join("{$joinType} join", [$joinAs => $tableName], $condition, $extraJoinParams);
+            $this->query->join($joinType, [$joinAs => $tableName], $condition, $extraJoinParams);
         }
 
         foreach($this->filters as $modifier) {
-            $modifier($this->query);
+            $modifier($this->query->getQuery());
         }
 
         return $this->query;

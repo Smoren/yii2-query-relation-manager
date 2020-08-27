@@ -9,13 +9,13 @@ use Smoren\Yii2\QueryRelationManager\Base\QueryWrapperInterface;
 class QueryWrapper implements QueryWrapperInterface
 {
     /**
-     * @var yii\db\Query
+     * @var \yii\db\Query
      */
     protected $query;
 
     public function __construct()
     {
-        $this->query = new yii\db\Query();
+        $this->query = new \yii\db\Query();
     }
 
     public function select(array $arSelect): QueryWrapperInterface
