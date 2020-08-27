@@ -93,6 +93,7 @@ class QueryRelationDataProvider extends BaseDataProvider
      */
     protected function prepareTotalCount()
     {
+        // TODO слабое место: сильно снижает производительность!!! Возможно необходимо сделать рассчет опциональным
         return $this->queryRelationManager
             ->prepare()
             ->getQuery()
