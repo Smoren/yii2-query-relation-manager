@@ -355,7 +355,7 @@ abstract class QueryRelationManagerBase
         $arSelect = [];
         foreach($this->fieldMatrix as $joinAs => $fieldsMap) {
             foreach($fieldsMap as $fieldName => $fieldNamePrefixed) {
-                $arSelect[] = "{$joinAs}.{$fieldName} as {$fieldNamePrefixed}";
+                $arSelect[$fieldNamePrefixed] = "{$joinAs}.{$fieldName}";
             }
         }
 
@@ -409,6 +409,13 @@ abstract class QueryRelationManagerBase
      * @throws QueryRelationManagerException
      */
     abstract protected function getTableName(string $className): string;
+
+    /**
+     * Возвращает список полей таблицы
+     * @param string $className
+     * @return array
+     */
+    abstract protected function getTableFields(string $className): array;
 
     /**
      * Создает объект запроса
@@ -503,16 +510,7 @@ abstract class QueryRelationManagerBase
      */
     protected function addFields(string $className, string $joinAs): self
     {
-        if(!class_exists($className)) {
-            throw new QueryRelationManagerException("class {$className} is not defined");
-        }
-
-
-        if(!method_exists($className, 'getTableSchema')) {
-            throw new QueryRelationManagerException("method {$className}::getTableSchema() is not defined");
-        }
-
-        $fields = array_keys($className::getTableSchema()->columns);
+        $fields = $this->getTableFields($className);
 
         $this->fieldMatrix[$joinAs] = [];
 
