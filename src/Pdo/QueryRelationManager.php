@@ -39,6 +39,7 @@ class QueryRelationManager extends QueryRelationManagerBase
      * Возвращает список полей таблицы
      * @param string $className
      * @return array
+     * @throws QueryRelationManagerException
      */
     protected function getTableFields(string $className): array
     {

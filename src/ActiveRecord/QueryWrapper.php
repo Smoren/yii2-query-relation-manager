@@ -13,11 +13,17 @@ class QueryWrapper implements QueryWrapperInterface
      */
     protected $query;
 
+    /**
+     * QueryWrapper constructor.
+     */
     public function __construct()
     {
         $this->query = new \yii\db\Query();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function select(array $arSelect): QueryWrapperInterface
     {
         $this->query->select($arSelect);
@@ -25,6 +31,9 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function from(array $mapFrom): QueryWrapperInterface
     {
         $this->query->from($mapFrom);
@@ -32,6 +41,9 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function join(string $type, array $mapTable, string $condition, array $extraJoinParams = []): QueryWrapperInterface
     {
         $this->query->join("{$type} join", $mapTable, $condition, $extraJoinParams);
@@ -39,16 +51,25 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function all($db = null): array
     {
         return $this->query->all($db);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getRawSql(): string
     {
         return $this->createCommand()->getRawSql();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getQuery()
     {
         return $this->query;

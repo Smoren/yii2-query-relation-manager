@@ -4,11 +4,17 @@
 namespace Smoren\Yii2\QueryRelationManager\Pdo;
 
 use PDO;
+use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
 use Smoren\Yii2\QueryRelationManager\Base\QueryWrapperInterface;
 
 
 class QueryWrapper implements QueryWrapperInterface
 {
+    /**
+     * @var PDO
+     */
+    protected static $pdo;
+
     /**
      * @var string
      */
@@ -20,27 +26,39 @@ class QueryWrapper implements QueryWrapperInterface
     protected $mapParams;
 
     /**
-     * @var PDO
+     * @param string $dsn
+     * @param string $username
+     * @param string $password
+     * @return PDO
      */
-    protected $pdo;
+    public static function setDbConfig(string $dsn, string $username, string $password): PDO
+    {
+        static::$pdo = new PDO(
+            $dsn,
+            $username,
+            $password,
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]
+        );
 
+        return static::$pdo;
+    }
+
+    /**
+     * QueryWrapper constructor.
+     */
     public function __construct()
     {
         $this->query = '';
         $this->mapParams = [];
-
-        $this->pdo = new PDO(
-            'mysql:host=localhost;dbname=yii2_query_relation_manager_demo',
-            'user',
-            '123456789',
-            [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-            ]
-        );
     }
 
+    /**
+     * @inheritDoc
+     */
     public function select(array $arSelect): QueryWrapperInterface
     {
         $this->query .= 'SELECT ';
@@ -55,6 +73,9 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function from(array $mapFrom): QueryWrapperInterface
     {
         $this->query .= ' FROM ';
@@ -67,6 +88,9 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function join(string $type, array $mapTable, string $condition, array $extraJoinParams = []): QueryWrapperInterface
     {
         $this->query .= " ".addslashes($type)." JOIN ";
@@ -85,10 +109,20 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @param PDO|null $db
+     * @return array
+     * @throws QueryRelationManagerException
+     * @inheritDoc
+     */
     public function all($db = null): array
     {
         /** @var PDO $db */
-        $db = $db ?? $this->pdo;
+        $db = $db ?? static::$pdo;
+
+        if(!$db) {
+            throw new QueryRelationManagerException('no pdo connection opened');
+        }
 
         $q = $db->prepare($this->query);
 
@@ -101,6 +135,9 @@ class QueryWrapper implements QueryWrapperInterface
         return $q->fetchAll();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getRawSql(): string
     {
         $from = array_keys($this->mapParams);
@@ -113,6 +150,10 @@ class QueryWrapper implements QueryWrapperInterface
         return str_replace($from, $to, $this->query);
     }
 
+    /**
+     * @param string $sql
+     * @return $this
+     */
     public function setRawSql(string $sql): self
     {
         $this->query = $sql;
@@ -120,6 +161,9 @@ class QueryWrapper implements QueryWrapperInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getQuery()
     {
         return $this->query;
