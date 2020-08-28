@@ -4,6 +4,7 @@
 namespace Smoren\Yii2\QueryRelationManager\ActiveRecord;
 
 
+use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
 use yii\data\BaseDataProvider;
 use yii\db\Connection;
 use yii\db\Query;
@@ -26,6 +27,11 @@ class QueryRelationDataProvider extends BaseDataProvider
      * @var string|callable имя столбца с ключом или callback-функция, возвращающие его
      */
     public $key;
+
+    /**
+     * @var bool Не считать totalCount
+     */
+    public $withoutTotalCount = false;
 
     /**
      * Prepares the data models that will be made available in the current page.
@@ -93,7 +99,10 @@ class QueryRelationDataProvider extends BaseDataProvider
      */
     protected function prepareTotalCount()
     {
-        // TODO слабое место: сильно снижает производительность!!! Возможно необходимо сделать рассчет опциональным
+        if($this->withoutTotalCount) {
+            return 0;
+        }
+
         return $this->queryRelationManager
             ->prepare()
             ->getQuery()
