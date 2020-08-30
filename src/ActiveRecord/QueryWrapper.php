@@ -64,7 +64,7 @@ class QueryWrapper implements QueryWrapperInterface
      */
     public function getRawSql(): string
     {
-        return $this->createCommand()->getRawSql();
+        return $this->query->createCommand()->getRawSql();
     }
 
     /**
