@@ -532,6 +532,201 @@ print_r($dataProvider->getModels());
 )*/
 
 
+// Используем упрощенный синтаксис построения запросов
+// Получим все адреса с городом, местами и комментариями, оценка которых не ниже трех
+// Метод City:select() добавлен в модель City с помощью трейта ActiveRecordTrait
+$result = Address::select('a')
+    ->with('city', 'c')
+    ->with('places', 'p')
+    ->with(
+        'comments', 'cm', 'p',
+        'left', 'and cm.mark >= :mark', [':mark' => 3]
+    )
+    ->all();
+
+print_r($result);
+/*Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [city_id] => 1
+            [name] => Tverskaya st., 7
+            [city] => Array
+                (
+                    [id] => 1
+                    [name] => Moscow
+                )
+
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 1
+                            [address_id] => 1
+                            [name] => TC Tverskoy
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 1
+                                            [place_id] => 1
+                                            [username] => Ivan Mustafaevich
+                                            [mark] => 3
+                                            [text] => Not bad, not good
+                                        )
+
+                                    [1] => Array
+                                        (
+                                            [id] => 2
+                                            [place_id] => 1
+                                            [username] => Peter
+                                            [mark] => 5
+                                            [text] => Good place
+                                        )
+
+                                )
+
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 2
+                            [address_id] => 1
+                            [name] => Tverskaya cafe
+                            [comments] => Array
+                                (
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [1] => Array
+        (
+            [id] => 2
+            [city_id] => 1
+            [name] => Schipok st., 1
+            [city] => Array
+                (
+                    [id] => 1
+                    [name] => Moscow
+                )
+
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 3
+                            [address_id] => 2
+                            [name] => Stasova music school
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 4
+                                            [place_id] => 3
+                                            [username] => Ann
+                                            [mark] => 5
+                                            [text] => The best music school!
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [2] => Array
+        (
+            [id] => 3
+            [city_id] => 2
+            [name] => Mayakovskogo st., 12
+            [city] => Array
+                (
+                    [id] => 2
+                    [name] => St. Petersburg
+                )
+
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 4
+                            [address_id] => 3
+                            [name] => Hostel on Mayakovskaya
+                            [comments] => Array
+                                (
+                                )
+
+                        )
+
+                    [1] => Array
+                        (
+                            [id] => 5
+                            [address_id] => 3
+                            [name] => Mayakovskiy Store
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 5
+                                            [place_id] => 5
+                                            [username] => Stas
+                                            [mark] => 4
+                                            [text] => Rather good place
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [3] => Array
+        (
+            [id] => 4
+            [city_id] => 2
+            [name] => Galernaya st., 3
+            [city] => Array
+                (
+                    [id] => 2
+                    [name] => St. Petersburg
+                )
+
+            [places] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 6
+                            [address_id] => 4
+                            [name] => Cafe on Galernaya
+                            [comments] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [id] => 6
+                                            [place_id] => 6
+                                            [username] => Stas
+                                            [mark] => 3
+                                            [text] => Small menu, long wait
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)*/
 ```
 
 Репозиторий с демонстрацией использования расширения: https://github.com/Smoren/yii2-query-relation-manager-demo

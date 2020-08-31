@@ -8,9 +8,10 @@ use yii\db\Query;
 
 
 /**
- * Class QueryWrapper
- * Класс-обертка для ActiveQuery
- * @package app\qrm\ActiveRecord
+ * Реализация обертки ActiveQuery для QueryRelationManager
+ * @inheritDoc
+ * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
+ * @author Smoren <ofigate@gmail.com>
  */
 class QueryWrapper implements QueryWrapperInterface
 {

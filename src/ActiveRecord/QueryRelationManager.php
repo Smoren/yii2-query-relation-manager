@@ -11,8 +11,9 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * Class for making queries for getting data from database with relations and filters
- * @package Smoren\Yii2\QueryRelationManager
+ * Реализация QueryRelationManager для ActiveRecord в Yii2
+ * @inheritDoc
+ * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
  * @author Smoren <ofigate@gmail.com>
  */
 class QueryRelationManager extends QueryRelationManagerBase

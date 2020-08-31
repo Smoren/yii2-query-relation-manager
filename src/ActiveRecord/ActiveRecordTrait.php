@@ -7,14 +7,15 @@ namespace Smoren\Yii2\QueryRelationManager\ActiveRecord;
 use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
 
 /**
- * Trait ActiveRecordTrait
  * Trait для упрощения построения запросов с помощью QueryRelationManager
- * @package app\qrm\ActiveRecord
+ * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
+ * @author Smoren <ofigate@gmail.com>
  */
 trait ActiveRecordTrait
 {
     /**
-     * @param string|null $alias
+     * Создает запрос QueryRelationManager к таблице модели ActiveRecord, к которой применен трейт
+     * @param string|null $alias псевдоним таблицы в запросе
      * @return QueryRelationManager
      * @throws QueryRelationManagerException
      */

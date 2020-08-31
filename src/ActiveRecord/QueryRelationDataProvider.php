@@ -10,14 +10,14 @@ use yii\db\Connection;
 use yii\db\Query;
 
 /**
- * Class QueryRelationDataProvider
- * DataProvider для запросов QueryRelationManager
- * @package app\qrm\ActiveRecord
+ * DataProvider для организации постраничной навигации в QueryRelationManager
+ * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
+ * @author Smoren <ofigate@gmail.com>
  */
 class QueryRelationDataProvider extends BaseDataProvider
 {
     /**
-     * @var QueryRelationManager
+     * @var QueryRelationManager объект QueryRelationManager
      */
     public $queryRelationManager;
 
