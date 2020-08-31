@@ -34,9 +34,9 @@ use app\models\Comment;
 
 // Выбираем адреса с городом, местами и комментариями о местах
 $result = QueryRelationManager::select(Address::class, 'a')
-    ->withSingle('city', City::class, 'c', 'a', 'id', 'city_id')
-    ->withMultiple('places', Place::class, 'p', 'a', 'address_id', 'id')
-    ->withMultiple('comments', Comment::class, 'cm', 'p', 'place_id', 'id')
+    ->withSingle('city', City::class, 'c', 'a', ['id' => 'city_id'])
+    ->withMultiple('places', Place::class, 'p', 'a', ['address_id' => 'id'])
+    ->withMultiple('comments', Comment::class, 'cm', 'p', ['place_id' => 'id'])
     ->all();
 
 print_r($result);
@@ -47,6 +47,12 @@ print_r($result);
             [id] => 1
             [city_id] => 1
             [name] => Tverskaya st., 7
+            [city] => Array
+                (
+                    [id] => 1
+                    [name] => Moscow
+                )
+
             [places] => Array
                 (
                     [0] => Array
@@ -100,12 +106,6 @@ print_r($result);
 
                 )
 
-            [city] => Array
-                (
-                    [id] => 1
-                    [name] => Moscow
-                )
-
         )
 
     [1] => Array
@@ -113,6 +113,12 @@ print_r($result);
             [id] => 2
             [city_id] => 1
             [name] => Schipok st., 1
+            [city] => Array
+                (
+                    [id] => 1
+                    [name] => Moscow
+                )
+
             [places] => Array
                 (
                     [0] => Array
@@ -137,12 +143,6 @@ print_r($result);
 
                 )
 
-            [city] => Array
-                (
-                    [id] => 1
-                    [name] => Moscow
-                )
-
         )
 
     [2] => Array
@@ -150,6 +150,12 @@ print_r($result);
             [id] => 3
             [city_id] => 2
             [name] => Mayakovskogo st., 12
+            [city] => Array
+                (
+                    [id] => 2
+                    [name] => St. Petersburg
+                )
+
             [places] => Array
                 (
                     [0] => Array
@@ -185,12 +191,6 @@ print_r($result);
 
                 )
 
-            [city] => Array
-                (
-                    [id] => 2
-                    [name] => St. Petersburg
-                )
-
         )
 
     [3] => Array
@@ -198,6 +198,12 @@ print_r($result);
             [id] => 4
             [city_id] => 2
             [name] => Galernaya st., 3
+            [city] => Array
+                (
+                    [id] => 2
+                    [name] => St. Petersburg
+                )
+
             [places] => Array
                 (
                     [0] => Array
@@ -222,12 +228,6 @@ print_r($result);
 
                 )
 
-            [city] => Array
-                (
-                    [id] => 2
-                    [name] => St. Petersburg
-                )
-
         )
 
 )*/
@@ -238,36 +238,23 @@ print_r($result);
 // - если подходящих комментариев нет, место не попадает в выборку (inner join)
 // - для каждого места считаем количество комментариев, количество оценок "5" и среднюю оценку среди оценок не ниже 3
 $result = QueryRelationManager::select(Place::class, 'p')
-    ->withSingle('address', Address::class, 'a', 'p', 'id', 'address_id')
-    ->withSingle('city', City::class, 'c', 'a', 'id', 'city_id')
-    ->withMultiple('comments', Comment::class, 'cm', 'p', 'place_id', 'id',
+    ->withSingle('address', Address::class, 'a', 'p', ['id' => 'address_id'])
+    ->withSingle('city', City::class, 'c', 'a', ['id' => 'city_id'])
+    ->withMultiple('comments', Comment::class, 'cm', 'p', ['place_id' => 'id'],
         'inner', 'and cm.mark >= :mark', [':mark' => 3])
-    ->modify('cm', function(array &$comment, array &$place) {
-        if(!isset($place['comments_count'])) {
-            $place['comments_count'] = 0;
-        }
-
-        if(!isset($place['mark_five_count'])) {
-            $place['mark_five_count'] = 0;
-        }
-
-        if(!isset($place['mark_average'])) {
-            $place['mark_average'] = 0;
-        }
-
-        $place['comments_count']++;
-        $place['mark_average'] += $comment['mark'];
-
-        if($comment['mark'] == 5) {
-            $place['mark_five_count']++;
-        }
-    })
     ->modify('p', function(array &$place) {
-        if(!isset($place['mark_average'])) {
-            $place['mark_average'] = 0;
-        } else {
-            $place['mark_average'] /= $place['comments_count'];
+        $place['comments_count'] = count($place['comments']);
+        $place['mark_five_count'] = 0;
+        $place['mark_average'] = 0;
+    
+        foreach($place['comments'] as $comment) {
+            $place['mark_average'] += $comment['mark'];
+            if($comment['mark'] == 5) {
+                $place['mark_five_count']++;
+            }
         }
+    
+        $place['mark_average'] /= $place['comments_count'];
     })
     ->all();
 
@@ -279,6 +266,19 @@ print_r($result);
             [id] => 1
             [address_id] => 1
             [name] => TC Tverskoy
+            [address] => Array
+                (
+                    [id] => 1
+                    [city_id] => 1
+                    [name] => Tverskaya st., 7
+                    [city] => Array
+                        (
+                            [id] => 1
+                            [name] => Moscow
+                        )
+
+                )
+
             [comments] => Array
                 (
                     [0] => Array
@@ -301,19 +301,6 @@ print_r($result);
 
                 )
 
-            [address] => Array
-                (
-                    [id] => 1
-                    [city_id] => 1
-                    [name] => Tverskaya st., 7
-                    [city] => Array
-                        (
-                            [id] => 1
-                            [name] => Moscow
-                        )
-
-                )
-
             [comments_count] => 2
             [mark_five_count] => 1
             [mark_average] => 4
@@ -324,19 +311,6 @@ print_r($result);
             [id] => 3
             [address_id] => 2
             [name] => Stasova music school
-            [comments] => Array
-                (
-                    [0] => Array
-                        (
-                            [id] => 4
-                            [place_id] => 3
-                            [username] => Ann
-                            [mark] => 5
-                            [text] => The best music school!
-                        )
-
-                )
-
             [address] => Array
                 (
                     [id] => 2
@@ -346,6 +320,19 @@ print_r($result);
                         (
                             [id] => 1
                             [name] => Moscow
+                        )
+
+                )
+
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 4
+                            [place_id] => 3
+                            [username] => Ann
+                            [mark] => 5
+                            [text] => The best music school!
                         )
 
                 )
@@ -360,19 +347,6 @@ print_r($result);
             [id] => 5
             [address_id] => 3
             [name] => Mayakovskiy Store
-            [comments] => Array
-                (
-                    [0] => Array
-                        (
-                            [id] => 5
-                            [place_id] => 5
-                            [username] => Stas
-                            [mark] => 4
-                            [text] => Rather good place
-                        )
-
-                )
-
             [address] => Array
                 (
                     [id] => 3
@@ -382,6 +356,19 @@ print_r($result);
                         (
                             [id] => 2
                             [name] => St. Petersburg
+                        )
+
+                )
+
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 5
+                            [place_id] => 5
+                            [username] => Stas
+                            [mark] => 4
+                            [text] => Rather good place
                         )
 
                 )
@@ -396,19 +383,6 @@ print_r($result);
             [id] => 6
             [address_id] => 4
             [name] => Cafe on Galernaya
-            [comments] => Array
-                (
-                    [0] => Array
-                        (
-                            [id] => 6
-                            [place_id] => 6
-                            [username] => Stas
-                            [mark] => 3
-                            [text] => Small menu, long wait
-                        )
-
-                )
-
             [address] => Array
                 (
                     [id] => 4
@@ -418,6 +392,19 @@ print_r($result);
                         (
                             [id] => 2
                             [name] => St. Petersburg
+                        )
+
+                )
+
+            [comments] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 6
+                            [place_id] => 6
+                            [username] => Stas
+                            [mark] => 3
+                            [text] => Small menu, long wait
                         )
 
                 )
@@ -433,7 +420,7 @@ print_r($result);
 // Получаем города из списка ID с адресами
 $cityIds = City::find()->limit(2)->offset(1)->select('id')->column();
 $result = QueryRelationManager::select(City::class, 'c')
-    ->withMultiple('addresses', Address::class, 'a', 'c', 'city_id', 'id')
+    ->withMultiple('addresses', Address::class, 'a', 'c', ['city_id' => 'id'])
     ->filter(function(Query $q) use ($cityIds) {
         $q->andWhere(['c.id' => $cityIds])->orderBy(['a.id' => SORT_ASC]);
     })
@@ -481,7 +468,7 @@ print_r($result);
 
 // Используем QueryRelationDataProvider для пагинации
 $qrm = QueryRelationManager::select(City::class, 'c')
-    ->withMultiple('addresses', Address::class, 'a', 'c', 'city_id', 'id');
+    ->withMultiple('addresses', Address::class, 'a', 'c', ['city_id' => 'id']);
 
 $dataProvider = new QueryRelationDataProvider([
     'queryRelationManager' => $qrm,
