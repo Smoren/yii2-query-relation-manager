@@ -17,21 +17,30 @@ use yii\db\ActiveRecord;
  */
 class QueryRelationManager extends QueryRelationManagerBase
 {
+    /**
+     * Подключение отношения таблицы к запросу, используя данные из модели ActiveRecord
+     * @param string $relationName имя отношения, прописанное в модели ActiveRecord
+     * @param string $relationAlias псевдоним присоединяемой таблицы
+     * @param string|null $parentAlias псевдоним таблицы, к которой очуществляется присоединение (по умолчанию — основная таблица запроса)
+     * @param string $joinType тип присоединения ("inner", "left", "right")
+     * @param string|null $extraJoinCondition дополнительные условия присоединения
+     * @param array|null $extraJoinParams динамические значения дополнительных условий присодинения
+     * @return $this
+     * @throws QueryRelationManagerException
+     */
     public function with(
-        string $relationName, string $relationAlias, ?string $parentClassName = null, string $joinType = 'left',
+        string $relationName, string $relationAlias, ?string $parentAlias = null, string $joinType = 'left',
         ?string $extraJoinCondition = null, ?array $extraJoinParams = []
     ): self
     {
-        $parentClassName = $parentClassName ?? $this->mainClassName;
+        $mainTable = $this->tableCollection->getMainTable();
+
+        $parentAlias = $parentAlias ?? $mainTable->alias;
+        $parentClassName = $this->tableCollection->byAlias($parentAlias)->className;
 
         if(!class_exists($parentClassName)) {
             throw new QueryRelationManagerException("class {$parentClassName} not exists");
         }
-
-        if(!isset($this->mapClassNameToTableAlias[$parentClassName])) {
-            throw new QueryRelationManagerException("class {$parentClassName} not used in query");
-        }
-        $parentAlias = $this->mapClassNameToTableAlias[$parentClassName];
 
         /** @var ActiveRecord $inst */
         $inst = new $parentClassName;
@@ -57,32 +66,17 @@ class QueryRelationManager extends QueryRelationManagerBase
             throw new QueryRelationManagerException('cannot use relations without "link" section');
         }
 
-        $fieldJoinBy = null;
-        $fieldJoinTo = null;
-        $extraConditions = [];
-        foreach($activeQuery->link as $key => $val) {
-            if($fieldJoinBy === null) {
-                $fieldJoinBy = $key;
-                $fieldJoinTo = $val;
-            } else {
-                $extraConditions[] = "{$relationAlias}.{$key} = {$parentAlias}.{$val}";
-            }
-        }
-        if(count($extraConditions)) {
-            $extraJoinCondition = implode(' AND ', $extraConditions)." {$extraJoinCondition}";
-        }
-
         if($activeQuery->multiple) {
             return $this->withMultiple(
                 $relationName, $activeQuery->modelClass, $relationAlias,
-                $parentAlias, $fieldJoinBy, $fieldJoinTo, $joinType,
-                $extraJoinCondition, $extraJoinParams, $activeQuery->modelClass::primaryKey()[0]
+                $parentAlias, $activeQuery->link, $joinType,
+                $extraJoinCondition, $extraJoinParams
             );
         } else {
             return $this->withSingle(
                 $relationName, $activeQuery->modelClass, $relationAlias,
-                $parentAlias, $fieldJoinBy, $fieldJoinTo, $joinType,
-                $extraJoinCondition, $extraJoinParams, $activeQuery->modelClass::primaryKey()[0]
+                $parentAlias, $activeQuery->link, $joinType,
+                $extraJoinCondition, $extraJoinParams
             );
         }
     }
@@ -113,7 +107,7 @@ class QueryRelationManager extends QueryRelationManagerBase
 
     /**
      * Возвращает список полей таблицы
-     * @param string $className
+     * @param string $className имя класса ORM-модели
      * @return array
      * @throws QueryRelationManagerException
      */
@@ -128,5 +122,24 @@ class QueryRelationManager extends QueryRelationManagerBase
         }
 
         return array_keys($className::getTableSchema()->columns);
+    }
+
+    /**
+     * Возвращает поля первичного ключа таблицы
+     * @param string $className имя класса ORM-модели
+     * @return array
+     * @throws QueryRelationManagerException
+     */
+    protected function getPrimaryKey(string $className): array
+    {
+        if(!class_exists($className)) {
+            throw new QueryRelationManagerException("class {$className} is not defined");
+        }
+
+        if(!method_exists($className, 'primaryKey')) {
+            throw new QueryRelationManagerException("method {$className}::primaryKey() is not defined");
+        }
+
+        return $className::primaryKey();
     }
 }

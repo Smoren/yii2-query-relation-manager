@@ -9,6 +9,11 @@ use yii\data\BaseDataProvider;
 use yii\db\Connection;
 use yii\db\Query;
 
+/**
+ * Class QueryRelationDataProvider
+ * DataProvider для запросов QueryRelationManager
+ * @package app\qrm\ActiveRecord
+ */
 class QueryRelationDataProvider extends BaseDataProvider
 {
     /**
@@ -50,20 +55,45 @@ class QueryRelationDataProvider extends BaseDataProvider
 
             $pagination->totalCount = $this->getTotalCount();
 
-            $pkField = $this->queryRelationManager->getMainTablePkField();
+            $mainTable = $this->queryRelationManager->getTableCollection()->getMainTable();
+            $pkFields = $mainTable->getPrimaryKeyForSelect();
 
-            $ids = $this->queryRelationManager
-                ->prepare()
-                ->getQuery()
-                ->select($pkField)
-                ->distinct()
-                ->limit($limit)
-                ->offset($offset)
-                ->column();
+            if(count($pkFields) === 1) {
+                $ids = $this->queryRelationManager
+                    ->prepare()
+                    ->getQuery()
+                    ->select($pkFields)
+                    ->distinct()
+                    ->limit($limit)
+                    ->offset($offset)
+                    ->column();
 
-            $models = $this->queryRelationManager->filter(function(Query $q) use ($pkField, $ids) {
-                $q->andWhere([$pkField => $ids]);
-            })->all();
+                $models = $this->queryRelationManager->filter(function(Query $q) use ($pkFields, $ids) {
+                    $q->andWhere([$pkFields[0] => $ids]);
+                })->all();
+            } else {
+                $pkValues = $this->queryRelationManager
+                    ->prepare()
+                    ->getQuery()
+                    ->select($pkFields)
+                    ->distinct()
+                    ->limit($limit)
+                    ->offset($offset)
+                    ->all();
+
+                $pkValuesPrefixed = [];
+                foreach($pkValues as $row) {
+                    $rowPrefixed = [];
+                    foreach($row as $field => $value) {
+                        $rowPrefixed["`{$mainTable->alias}`.`{$field}`"] = $value;
+                    }
+                    $pkValuesPrefixed[] = $rowPrefixed;
+                }
+
+                $models = $this->queryRelationManager->filter(function(Query $q) use ($pkFields, $pkValuesPrefixed, $mainTable) {
+                    $q->andWhere(['in', $pkFields, $pkValuesPrefixed]);
+                })->all();
+            }
         }
 
         return $models;
@@ -96,6 +126,7 @@ class QueryRelationDataProvider extends BaseDataProvider
     /**
      * Returns a value indicating the total number of data models in this data provider.
      * @return int total number of data models in this data provider.
+     * @throws QueryRelationManagerException
      */
     protected function prepareTotalCount()
     {
@@ -106,7 +137,7 @@ class QueryRelationDataProvider extends BaseDataProvider
         return $this->queryRelationManager
             ->prepare()
             ->getQuery()
-            ->select($this->queryRelationManager->getMainTablePkField())
+            ->select($this->queryRelationManager->getTableCollection()->getMainTable()->getPrimaryKeyForSelect())
             ->distinct()
             ->count();
     }

@@ -4,12 +4,19 @@
 namespace Smoren\Yii2\QueryRelationManager\ActiveRecord;
 
 use Smoren\Yii2\QueryRelationManager\Base\QueryWrapperInterface;
+use yii\db\Query;
 
 
+/**
+ * Class QueryWrapper
+ * Класс-обертка для ActiveQuery
+ * @package app\qrm\ActiveRecord
+ */
 class QueryWrapper implements QueryWrapperInterface
 {
     /**
-     * @var \yii\db\Query
+     * Объект ActiveQuery
+     * @var Query
      */
     protected $query;
 
@@ -18,7 +25,7 @@ class QueryWrapper implements QueryWrapperInterface
      */
     public function __construct()
     {
-        $this->query = new \yii\db\Query();
+        $this->query = new Query();
     }
 
     /**
