@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Smoren\Yii2\QueryRelationManager\ActiveRecord;
+namespace Smoren\Yii2\QueryRelationManager\Yii2;
 
 use Smoren\Yii2\QueryRelationManager\Base\QueryWrapperInterface;
 use yii\db\Query;
