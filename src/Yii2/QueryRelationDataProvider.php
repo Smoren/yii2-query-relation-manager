@@ -39,6 +39,22 @@ class QueryRelationDataProvider extends BaseDataProvider
     public $withoutTotalCount = false;
 
     /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        if(!($this->queryRelationManager instanceof QueryRelationManager)) {
+            throw new QueryRelationManagerException(
+                "param QueryRelationDataProvider::queryRelationManager is not an instance of QueryRelationManager"
+            );
+        }
+
+        $this->queryRelationManager = clone $this->queryRelationManager;
+    }
+
+    /**
      * Prepares the data models that will be made available in the current page.
      * @return array the available data models
      * @throws QueryRelationManagerException
