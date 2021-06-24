@@ -101,7 +101,7 @@ class QueryRelationDataProvider extends BaseDataProvider
                 foreach($pkValues as $row) {
                     $rowPrefixed = [];
                     foreach($row as $field => $value) {
-                        $rowPrefixed["`{$mainTable->alias}`.`{$field}`"] = $value;
+                        $rowPrefixed["{$mainTable->alias}.{$field}"] = $value;
                     }
                     $pkValuesPrefixed[] = $rowPrefixed;
                 }
