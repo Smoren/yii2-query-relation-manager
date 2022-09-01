@@ -25,8 +25,8 @@ composer require smoren/yii2-query-relation-manager
 ```php
 <?php
 
-use Smoren\Yii2\QueryRelationManager\Yii2\QueryRelationManager;
-use Smoren\Yii2\QueryRelationManager\Yii2\QueryRelationDataProvider;
+use Smoren\QueryRelationManager\Yii2\QueryRelationManager;
+use Smoren\QueryRelationManager\Yii2\QueryRelationDataProvider;
 use app\models\City;
 use app\models\Address;
 use app\models\Place;
