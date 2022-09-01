@@ -1,15 +1,13 @@
 <?php
 
+namespace Smoren\QueryRelationManager\Yii2;
 
-namespace Smoren\Yii2\QueryRelationManager\Yii2;
-
-
-use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
+use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
 
 /**
  * Trait для упрощения построения запросов с помощью QueryRelationManager
- * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
  * @author Smoren <ofigate@gmail.com>
+ * @method static string tableName()
  */
 trait ActiveRecordTrait
 {
@@ -21,8 +19,6 @@ trait ActiveRecordTrait
      */
     public static function select(?string $alias = null): QueryRelationManager
     {
-        return QueryRelationManager::select(
-            self::class, $alias ?? self::tableName()
-        );
+        return QueryRelationManager::select(self::class, $alias ?? self::tableName());
     }
 }

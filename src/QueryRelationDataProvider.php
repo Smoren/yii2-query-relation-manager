@@ -1,17 +1,14 @@
 <?php
 
+namespace Smoren\QueryRelationManager\Yii2;
 
-namespace Smoren\Yii2\QueryRelationManager\Yii2;
-
-
-use Smoren\Yii2\QueryRelationManager\Base\QueryRelationManagerException;
+use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
 use yii\data\BaseDataProvider;
 use yii\db\Connection;
 use yii\db\Query;
 
 /**
  * DataProvider для организации постраничной навигации в QueryRelationManager
- * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
  * @author Smoren <ofigate@gmail.com>
  */
 class QueryRelationDataProvider extends BaseDataProvider
@@ -19,14 +16,13 @@ class QueryRelationDataProvider extends BaseDataProvider
     /**
      * @var QueryRelationManager объект QueryRelationManager
      */
-    public $queryRelationManager;
+    public QueryRelationManager $queryRelationManager;
 
     /**
-     * @var Connection|array|string the DB connection object or the application component ID of the DB connection.
+     * @var Connection|null the DB connection object or the application component ID of the DB connection.
      * If not set, the default DB connection will be used.
-     * Starting from version 2.0.2, this can also be a configuration array for creating the object.
      */
-    public $db;
+    public ?Connection $db;
 
     /**
      * @var string|callable имя столбца с ключом или callback-функция, возвращающие его
@@ -36,30 +32,23 @@ class QueryRelationDataProvider extends BaseDataProvider
     /**
      * @var bool Не считать totalCount
      */
-    public $withoutTotalCount = false;
+    public bool $withoutTotalCount = false;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-
-        if(!($this->queryRelationManager instanceof QueryRelationManager)) {
-            throw new QueryRelationManagerException(
-                "param QueryRelationDataProvider::queryRelationManager is not an instance of QueryRelationManager"
-            );
-        }
-
         $this->queryRelationManager = clone $this->queryRelationManager;
     }
 
     /**
      * Prepares the data models that will be made available in the current page.
-     * @return array the available data models
+     * @return array<mixed> the available data models
      * @throws QueryRelationManagerException
      */
-    protected function prepareModels()
+    protected function prepareModels(): array
     {
         $pagination = $this->getPagination();
 
@@ -106,9 +95,11 @@ class QueryRelationDataProvider extends BaseDataProvider
                     $pkValuesPrefixed[] = $rowPrefixed;
                 }
 
-                $models = $this->queryRelationManager->filter(function(Query $q) use ($pkFields, $pkValuesPrefixed, $mainTable) {
-                    $q->andWhere(['in', $pkFields, $pkValuesPrefixed]);
-                })->all();
+                $models = $this->queryRelationManager->filter(
+                    function(Query $q) use ($pkFields, $pkValuesPrefixed) {
+                        $q->andWhere(['in', $pkFields, $pkValuesPrefixed]);
+                    }
+                )->all();
             }
         }
 
@@ -117,12 +108,13 @@ class QueryRelationDataProvider extends BaseDataProvider
 
     /**
      * Prepares the keys associated with the currently available data models.
-     * @param array $models the available data models
-     * @return array the keys
+     * @param array<array<string, mixed>> $models the available data models
+     * @return array<scalar> the keys
      */
-    protected function prepareKeys($models)
+    protected function prepareKeys($models): array
     {
         if($this->key !== null) {
+            /** @var array<scalar> $keys */
             $keys = [];
 
             foreach($models as $model) {
@@ -144,13 +136,13 @@ class QueryRelationDataProvider extends BaseDataProvider
      * @return int total number of data models in this data provider.
      * @throws QueryRelationManagerException
      */
-    protected function prepareTotalCount()
+    protected function prepareTotalCount(): int
     {
         if($this->withoutTotalCount) {
             return 0;
         }
 
-        return $this->queryRelationManager
+        return (int)$this->queryRelationManager
             ->prepare()
             ->getQuery()
             ->select($this->queryRelationManager->getTableCollection()->getMainTable()->getPrimaryKeyForSelect())

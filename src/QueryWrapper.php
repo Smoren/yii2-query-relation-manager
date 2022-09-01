@@ -1,17 +1,15 @@
 <?php
 
+namespace Smoren\QueryRelationManager\Yii2;
 
-namespace Smoren\Yii2\QueryRelationManager\Yii2;
-
-use Smoren\Yii2\QueryRelationManager\Base\QueryWrapperInterface;
+use Smoren\QueryRelationManager\Base\QueryWrapperInterface;
+use yii\db\Connection;
 use yii\db\Query;
-
 
 /**
  * Реализация обертки ActiveQuery для QueryRelationManager
- * @inheritDoc
- * @package Smoren\Yii2\QueryRelationManager\ActiveRecord
  * @author Smoren <ofigate@gmail.com>
+ * @inheritDoc
  */
 class QueryWrapper implements QueryWrapperInterface
 {
@@ -19,7 +17,7 @@ class QueryWrapper implements QueryWrapperInterface
      * Объект ActiveQuery
      * @var Query
      */
-    protected $query;
+    protected Query $query;
 
     /**
      * QueryWrapper constructor.
@@ -52,8 +50,12 @@ class QueryWrapper implements QueryWrapperInterface
     /**
      * @inheritDoc
      */
-    public function join(string $type, array $mapTable, string $condition, array $extraJoinParams = []): QueryWrapperInterface
-    {
+    public function join(
+        string $type,
+        array $mapTable,
+        string $condition,
+        array $extraJoinParams = []
+    ): QueryWrapperInterface {
         $this->query->join("{$type} join", $mapTable, $condition, $extraJoinParams);
 
         return $this;
@@ -61,6 +63,7 @@ class QueryWrapper implements QueryWrapperInterface
 
     /**
      * @inheritDoc
+     * @param Connection|null $db объект подключения к БД
      */
     public function all($db = null): array
     {
@@ -77,8 +80,9 @@ class QueryWrapper implements QueryWrapperInterface
 
     /**
      * @inheritDoc
+     * @return Query
      */
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->query;
     }
