@@ -14,7 +14,7 @@
     "php": ">=7.4",
     "ext-pdo": "*",
     "yiisoft/yii2": "^2.0.0",
-    "smoren/query-relation-manager": "dev-master"
+    "smoren/query-relation-manager": "^3.0.0"
   },
   "require-dev": {
     "codeception/codeception": "^4.2.1",
