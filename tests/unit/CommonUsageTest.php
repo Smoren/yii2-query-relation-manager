@@ -142,4 +142,27 @@ class CommonUsageTest extends \Codeception\Test\Unit
         $this->assertTrue(count($resultMap[3]['addresses']) == 0);
         $this->assertTrue(count($resultMap[2]['addresses']) == 2);
     }
+
+    public function testRawSql()
+    {
+        $q = QueryRelationManager::select(Place::class, 'p')
+            ->withSingle('address', Address::class, 'a', 'p', ['id' => 'address_id'])
+            ->withSingle('city', City::class, 'c', 'a', ['id' => 'city_id'])
+            ->withMultiple(
+                'comments',
+                Comment::class,
+                'cm',
+                'p',
+                ['place_id' => 'id'],
+                'inner',
+                'and cm.mark >= :mark',
+                [':mark' => 3]
+            )
+            ->getRawSql();
+
+        $this->assertEquals(
+            'SELECT `p`.`id` AS `p_id`, `p`.`address_id` AS `p_address_id`, `p`.`name` AS `p_name`, `a`.`id` AS `a_id`, `a`.`city_id` AS `a_city_id`, `a`.`name` AS `a_name`, `c`.`id` AS `c_id`, `c`.`name` AS `c_name`, `cm`.`id` AS `cm_id`, `cm`.`place_id` AS `cm_place_id`, `cm`.`username` AS `cm_username`, `cm`.`mark` AS `cm_mark`, `cm`.`text` AS `cm_text` FROM `place` `p` left join `address` `a` ON a.id = p.address_id  left join `city` `c` ON c.id = a.city_id  inner join `comment` `cm` ON cm.place_id = p.id and cm.mark >= 3',
+            $q
+        );
+    }
 }

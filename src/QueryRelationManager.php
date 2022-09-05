@@ -5,6 +5,7 @@ namespace Smoren\QueryRelationManager\Yii2;
 use Smoren\QueryRelationManager\Base\QueryRelationManagerBase;
 use Smoren\QueryRelationManager\Base\QueryWrapperInterface;
 use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -19,6 +20,15 @@ class QueryRelationManager extends QueryRelationManagerBase
      * @var QueryWrapper ActiveQuery wrapper instance
      */
     protected QueryWrapperInterface $query;
+
+    /**
+     * @inheritDoc
+     */
+    public static function select(string $className, string $tableAlias): QueryRelationManagerBase
+    {
+        static::checkClassIsActiveRecord($className);
+        return parent::select($className, $tableAlias);
+    }
 
     /**
      * Connects table to query as a relation using ActiveRecord relation config
@@ -43,17 +53,10 @@ class QueryRelationManager extends QueryRelationManagerBase
 
         $parentAlias = $parentAlias ?? $mainTable->alias;
         $parentClassName = $this->tableCollection->byAlias($parentAlias)->className;
-
-        if(!class_exists($parentClassName)) {
-            throw new QueryRelationManagerException("class {$parentClassName} not exists");
-        }
+        static::checkClassIsActiveRecord($parentClassName);
 
         /** @var ActiveRecord $inst */
         $inst = new $parentClassName();
-        if(!($inst instanceof ActiveRecord)) {
-            throw new QueryRelationManagerException("class {$parentClassName} is not an instance of ActiveRecord");
-        }
-
         $methodName = 'get'.ucfirst($relationName);
         if(!method_exists($inst, $methodName)) {
             throw new QueryRelationManagerException("method {$parentClassName}::{$methodName}() not exists");
@@ -103,15 +106,6 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
-     * Returns ActiveQuery wrapper instance
-     * @return QueryWrapper
-     */
-    public function getQuery(): QueryWrapper
-    {
-        return $this->query;
-    }
-
-    /**
      * @inheritDoc
      * @return QueryWrapper
      */
@@ -123,6 +117,26 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
+     * @param string $className
+     * @return void
+     * @throws QueryRelationManagerException
+     */
+    protected static function checkClassIsActiveRecord(string $className)
+    {
+        if(!class_exists($className)) {
+            throw new QueryRelationManagerException(
+                "class '{$className}' does not exist"
+            );
+        }
+
+        if(!(new $className() instanceof ActiveRecord)) {
+            throw new QueryRelationManagerException(
+                "class {$className} is not an instance of ActiveRecord"
+            );
+        }
+    }
+
+    /**
      * Returns table name by it's ActiveRecord class name
      * @param string $className ActiveRecord class name
      * @return string table name
@@ -130,12 +144,7 @@ class QueryRelationManager extends QueryRelationManagerBase
      */
     protected function getTableName(string $className): string
     {
-        if(!method_exists($className, 'tableName')) {
-            throw new QueryRelationManagerException(
-                "method {$className}::tableName() is not defined"
-            );
-        }
-
+        static::checkClassIsActiveRecord($className);
         return $className::tableName();
     }
 
@@ -150,35 +159,27 @@ class QueryRelationManager extends QueryRelationManagerBase
 
     /**
      * @inheritDoc
+     * @throws QueryRelationManagerException|InvalidConfigException
      */
     protected function getTableFields(string $className): array
     {
-        if(!class_exists($className)) {
-            throw new QueryRelationManagerException("class {$className} is not defined");
-        }
-
-        if(!method_exists($className, 'getTableSchema')) {
-            throw new QueryRelationManagerException("method {$className}::getTableSchema() is not defined");
-        }
-
-        /** @var array<string, mixed> $columns */
+        static::checkClassIsActiveRecord($className);
+        /**
+         * @var ActiveRecord $className
+         * @var array<string, mixed> $columns
+         */
         $columns = $className::getTableSchema()->columns;
         return array_keys($columns);
     }
 
     /**
      * @inheritDoc
+     * @throws QueryRelationManagerException
      */
     protected function getPrimaryKey(string $className): array
     {
-        if(!class_exists($className)) {
-            throw new QueryRelationManagerException("class {$className} is not defined");
-        }
-
-        if(!method_exists($className, 'primaryKey')) {
-            throw new QueryRelationManagerException("method {$className}::primaryKey() is not defined");
-        }
-
+        static::checkClassIsActiveRecord($className);
+        /** @var ActiveRecord $className */
         return $className::primaryKey();
     }
 }

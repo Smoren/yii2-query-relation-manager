@@ -3,6 +3,8 @@
 namespace Smoren\QueryRelationManager\Yii2\Tests\Unit\Models;
 
 use Smoren\QueryRelationManager\Yii2\ActiveRecordTrait;
+use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Bad\NonActiveRecordClass;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -54,5 +56,31 @@ class City extends ActiveRecord
     public function getAddresses()
     {
         return $this->hasMany(Address::class, ['city_id' => 'id']);
+    }
+
+    /**
+     * @return array
+     */
+    public function getNotModel(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBadActiveQuery(): ActiveQuery
+    {
+        return new ActiveQuery(NonActiveRecordClass::class);
+    }
+
+    /**
+     * @return ActiveQuery
+     * @throws InvalidConfigException
+     */
+    public function getBadActiveQueryVia(): ActiveQuery
+    {
+        return (new ActiveQuery(NonActiveRecordClass::class))
+            ->viaTable(Address::tableName(), ['id' => 'id']);
     }
 }

@@ -2,9 +2,11 @@
 
 namespace Smoren\QueryRelationManager\Yii2\Tests\Unit;
 
-use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Address;
-use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\City;
 use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
+use Smoren\QueryRelationManager\Yii2\QueryRelationManager;
+use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Address;
+use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Bad\NonActiveRecordClass;
+use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\City;
 use yii\helpers\ArrayHelper;
 
 class WithSyntaxTest extends \Codeception\Test\Unit
