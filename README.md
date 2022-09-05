@@ -1,22 +1,23 @@
 # yii2-query-relation-manager
-Реализует функционал получения данных из БД с отношениями "один к одному" и "один ко многим" с использованием одного 
-запроса к БД, а также с учетом всех ограничений в запросе при получении отношений.
 
-### Установка в проект на Yii2
+Implements the functionality of getting tree data from a database with one-to-one and one-to-many
+relationships using only one select-query to the database with flexible conditions configuration.
+
+### How to install to your project
 ```
 composer require smoren/yii2-query-relation-manager
 ```
 
-### Примеры использования
+### Usage examples
 
-Будем использовать следующие таблицы в БД с наборами полей:
+Let's say we have these tables in DB with such columns:
 
  - **city** (id, name)
  - **address** (id, city_id, name)
  - **place** (id, address_id, name)
  - **comment** (id, place_id, username, mark, text)
 
-и соответствующие им классы моделей **ActiveRecord**:
+and their corresponding **ActiveRecord** model classes:
  - app\models\\**City**
  - app\models\\**Address**
  - app\models\\**Place**
@@ -32,7 +33,7 @@ use app\models\Address;
 use app\models\Place;
 use app\models\Comment;
 
-// Выбираем адреса с городом, местами и комментариями о местах
+// Let's select addresses with theirs relations: city, places and comments about places
 $result = QueryRelationManager::select(Address::class, 'a')
     ->withSingle('city', City::class, 'c', 'a', ['id' => 'city_id'])
     ->withMultiple('places', Place::class, 'p', 'a', ['address_id' => 'id'])
@@ -233,10 +234,10 @@ print_r($result);
 )*/
 
 
-// Выбираем места с адресом и городом, а также комментариями, причем:
-// - комментарии имеют оценку не ниже 3
-// - если подходящих комментариев нет, место не попадает в выборку (inner join)
-// - для каждого места считаем количество комментариев, количество оценок "5" и среднюю оценку среди оценок не ниже 3
+// Now let's select places with it's relations: address, city and comments, and with next conditions
+// - comments are rated at least 3
+// - if there are no suitable comments, the place is not included in the selection (inner join)
+// - for each place we count the number of comments, the number of ratings "5" and the average rating among the ratings is not lower than 3
 $result = QueryRelationManager::select(Place::class, 'p')
     ->withSingle('address', Address::class, 'a', 'p', ['id' => 'address_id'])
     ->withSingle('city', City::class, 'c', 'a', ['id' => 'city_id'])
@@ -417,7 +418,7 @@ print_r($result);
 )*/
 
 
-// Получаем города из списка ID с адресами
+// Let's select cities with their addresses by the list of city ids
 $cityIds = City::find()->limit(2)->offset(1)->select('id')->column();
 $result = QueryRelationManager::select(City::class, 'c')
     ->withMultiple('addresses', Address::class, 'a', 'c', ['city_id' => 'id'])
@@ -466,7 +467,7 @@ print_r($result);
 )*/
 
 
-// Используем QueryRelationDataProvider для пагинации
+// Let's use QueryRelationDataProvider for pagination
 $qrm = QueryRelationManager::select(City::class, 'c')
     ->withMultiple('addresses', Address::class, 'a', 'c', ['city_id' => 'id']);
 
@@ -532,9 +533,9 @@ print_r($dataProvider->getModels());
 )*/
 
 
-// Используем упрощенный синтаксис построения запросов
-// Получим все адреса с городом, местами и комментариями, оценка которых не ниже трех
-// Метод City:select() добавлен в модель City с помощью трейта ActiveRecordTrait
+// Let's use a simplified syntax for building queries
+// We select addresses with their relations: city, places and their comments which rated at least 3
+// City:select() method added to City model by using ActiveRecordTrait
 $result = Address::select('a')
     ->with('city', 'c')
     ->with('places', 'p')
@@ -729,4 +730,4 @@ print_r($result);
 )*/
 ```
 
-Репозиторий с демонстрацией использования расширения: https://github.com/Smoren/yii2-query-relation-manager-demo
+For demo see this [repo](https://github.com/Smoren/yii2-query-relation-manager-demo).
