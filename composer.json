@@ -2,7 +2,7 @@
   "name": "smoren/yii2-query-relation-manager",
   "description": "Class for building queries and making result array with relations (single and multiple)",
   "type": "yii2-extension",
-  "keywords": ["yii2","extension", "query", "builder", "relation", "ActiveRecord"],
+  "keywords": ["yii2", "extension", "query", "builder", "relation", "ActiveRecord"],
   "license": "MIT",
   "authors": [
     {
@@ -19,6 +19,7 @@
   "require-dev": {
     "codeception/codeception": "^4.2.1",
     "codeception/module-asserts": "^2.0",
+    "codeception/module-yii2": "^1.0.0",
     "php-coveralls/php-coveralls": "^2.0",
     "squizlabs/php_codesniffer": "3.*",
     "phpstan/phpstan": "^1.8"
@@ -32,6 +33,9 @@
   "config": {
     "fxp-asset": {
       "enabled": false
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
     }
   },
   "repositories": [
@@ -42,6 +46,7 @@
   ],
   "scripts": {
     "test-init": ["./vendor/bin/codecept build"],
+    "test-migrate": ["php ./tests/scripts/migrate.php"],
     "test-all": ["composer test-coverage", "composer codesniffer", "composer stan"],
     "test": ["./vendor/bin/codecept run unit tests/unit"],
     "test-coverage": ["./vendor/bin/codecept run unit tests/unit --coverage"],

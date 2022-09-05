@@ -17,3 +17,7 @@ coverage:
     exclude:
         - vendor/*
         - tests/*
+modules:
+    config:
+        Yii2:
+            configFile: 'tests/unit/Config/test.php'
