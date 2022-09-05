@@ -23,7 +23,7 @@ class City extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'city';
     }
@@ -31,7 +31,7 @@ class City extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],
@@ -42,7 +42,7 @@ class City extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -53,7 +53,7 @@ class City extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getAddresses()
+    public function getAddresses(): ActiveQuery
     {
         return $this->hasMany(Address::class, ['city_id' => 'id']);
     }

@@ -3,9 +3,7 @@
 namespace Smoren\QueryRelationManager\Yii2\Tests\Unit;
 
 use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
-use Smoren\QueryRelationManager\Yii2\QueryRelationManager;
 use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Address;
-use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Bad\NonActiveRecordClass;
 use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\City;
 use yii\helpers\ArrayHelper;
 
@@ -45,18 +43,22 @@ class WithSyntaxTest extends \Codeception\Test\Unit
             ->with('city', 'c')
             ->with('places', 'p')
             ->with(
-                'comments', 'cm', 'p',
-                'left', 'and cm.mark >= :mark', [':mark' => 3]
+                'comments',
+                'cm',
+                'p',
+                'left',
+                'and cm.mark >= :mark',
+                [':mark' => 3]
             )
             ->all();
 
         $addressIds = ArrayHelper::getColumn($result, 'id');
         sort($addressIds);
-        $this->assertTrue($addressIds == [1, 2, 3, 4]);
+        $this->assertEquals([1, 2, 3, 4], $addressIds);
 
         $cityIds = ArrayHelper::getColumn($result, 'city.id');
         sort($cityIds);
-        $this->assertTrue($cityIds == [1, 1, 2, 2]);
+        $this->assertEquals([1, 1, 2, 2], $cityIds);
 
         $placeIdToCommentMarkMap = [
             1 => [3, 5],
@@ -70,7 +72,7 @@ class WithSyntaxTest extends \Codeception\Test\Unit
         foreach($result as $address) {
             foreach($address['places'] as $place) {
                 $placeMarks = ArrayHelper::getColumn($place['comments'], 'mark');
-                $this->assertTrue($placeIdToCommentMarkMap[$place['id']] == $placeMarks);
+                $this->assertEquals($placeIdToCommentMarkMap[$place['id']], $placeMarks);
             }
         }
     }
@@ -80,7 +82,7 @@ class WithSyntaxTest extends \Codeception\Test\Unit
      * @param array $correctMap
      * @return bool
      */
-    protected function compareCityResultWithCorrectMap(array $result, array $correctMap)
+    protected function compareCityResultWithCorrectMap(array $result, array $correctMap): bool
     {
         $resultMap = [];
         foreach($result as $city) {

@@ -24,19 +24,19 @@ class CommonUsageTest extends \Codeception\Test\Unit
             ->withMultiple('comments', Comment::class, 'cm', 'p', ['place_id' =>  'id'])
             ->all();
 
-        $this->assertTrue(count($result) == 4);
+        $this->assertCount(4, $result);
 
         $resultMap = ArrayHelper::index($result, 'id');
 
-        $this->assertTrue($resultMap[1]['city']['name'] == 'Moscow');
-        $this->assertTrue($resultMap[2]['city']['name'] == 'Moscow');
-        $this->assertTrue($resultMap[3]['city']['name'] == 'St. Petersburg');
-        $this->assertTrue($resultMap[4]['city']['name'] == 'St. Petersburg');
+        $this->assertEquals('Moscow', $resultMap[1]['city']['name']);
+        $this->assertEquals('Moscow', $resultMap[2]['city']['name']);
+        $this->assertEquals('St. Petersburg', $resultMap[3]['city']['name']);
+        $this->assertEquals('St. Petersburg', $resultMap[4]['city']['name']);
 
-        $this->assertTrue(count($resultMap[1]['places']) == 2);
-        $this->assertTrue(count($resultMap[2]['places']) == 1);
-        $this->assertTrue(count($resultMap[3]['places']) == 2);
-        $this->assertTrue(count($resultMap[4]['places']) == 1);
+        $this->assertCount(2, $resultMap[1]['places']);
+        $this->assertCount(1, $resultMap[2]['places']);
+        $this->assertCount(2, $resultMap[3]['places']);
+        $this->assertCount(1, $resultMap[4]['places']);
 
         $mapPlaceIdToCommentsCount = [
             1 => 3,
@@ -49,7 +49,7 @@ class CommonUsageTest extends \Codeception\Test\Unit
 
         foreach($resultMap as $addressId => &$address) {
             foreach($address['places'] as $place) {
-                $this->assertTrue(count($place['comments']) == $mapPlaceIdToCommentsCount[$place['id']]);
+                $this->assertCount($mapPlaceIdToCommentsCount[$place['id']], $place['comments']);
             }
         }
         unset($address);
@@ -81,39 +81,39 @@ class CommonUsageTest extends \Codeception\Test\Unit
             })
             ->all();
 
-        $this->assertTrue(count($result) == 4);
+        $this->assertCount(4, $result);
 
         $resultMap = ArrayHelper::index($result, 'id');
 
-        $this->assertTrue($resultMap[1]['address']['name'] == 'Tverskaya st., 7');
-        $this->assertTrue($resultMap[3]['address']['name'] == 'Schipok st., 1');
-        $this->assertTrue($resultMap[5]['address']['name'] == 'Mayakovskogo st., 12');
-        $this->assertTrue($resultMap[6]['address']['name'] == 'Galernaya st., 3');
+        $this->assertEquals('Tverskaya st., 7', $resultMap[1]['address']['name']);
+        $this->assertEquals('Schipok st., 1', $resultMap[3]['address']['name']);
+        $this->assertEquals('Mayakovskogo st., 12', $resultMap[5]['address']['name']);
+        $this->assertEquals('Galernaya st., 3', $resultMap[6]['address']['name']);
 
-        $this->assertTrue($resultMap[1]['address']['city']['name'] == 'Moscow');
-        $this->assertTrue($resultMap[3]['address']['city']['name'] == 'Moscow');
-        $this->assertTrue($resultMap[5]['address']['city']['name'] == 'St. Petersburg');
-        $this->assertTrue($resultMap[6]['address']['city']['name'] == 'St. Petersburg');
+        $this->assertEquals('Moscow', $resultMap[1]['address']['city']['name']);
+        $this->assertEquals('Moscow', $resultMap[3]['address']['city']['name']);
+        $this->assertEquals('St. Petersburg', $resultMap[5]['address']['city']['name']);
+        $this->assertEquals('St. Petersburg', $resultMap[6]['address']['city']['name']);
 
-        $this->assertTrue(count($resultMap[1]['comments']) == 2);
-        $this->assertTrue(count($resultMap[3]['comments']) == 1);
-        $this->assertTrue(count($resultMap[5]['comments']) == 1);
-        $this->assertTrue(count($resultMap[6]['comments']) == 1);
+        $this->assertCount(2, $resultMap[1]['comments']);
+        $this->assertCount(1, $resultMap[3]['comments']);
+        $this->assertCount(1, $resultMap[5]['comments']);
+        $this->assertCount(1, $resultMap[6]['comments']);
 
-        $this->assertTrue($resultMap[1]['comments_count'] == 2);
-        $this->assertTrue($resultMap[3]['comments_count'] == 1);
-        $this->assertTrue($resultMap[5]['comments_count'] == 1);
-        $this->assertTrue($resultMap[6]['comments_count'] == 1);
+        $this->assertEquals(2, $resultMap[1]['comments_count']);
+        $this->assertEquals(1, $resultMap[3]['comments_count']);
+        $this->assertEquals(1, $resultMap[5]['comments_count']);
+        $this->assertEquals(1, $resultMap[6]['comments_count']);
 
-        $this->assertTrue($resultMap[1]['mark_five_count'] == 1);
-        $this->assertTrue($resultMap[3]['mark_five_count'] == 1);
-        $this->assertTrue($resultMap[5]['mark_five_count'] == 0);
-        $this->assertTrue($resultMap[6]['mark_five_count'] == 0);
+        $this->assertEquals(1, $resultMap[1]['mark_five_count']);
+        $this->assertEquals(1, $resultMap[3]['mark_five_count']);
+        $this->assertEquals(0, $resultMap[5]['mark_five_count']);
+        $this->assertEquals(0, $resultMap[6]['mark_five_count']);
 
-        $this->assertTrue($resultMap[1]['mark_average'] == 4);
-        $this->assertTrue($resultMap[3]['mark_average'] == 5);
-        $this->assertTrue($resultMap[5]['mark_average'] == 4);
-        $this->assertTrue($resultMap[6]['mark_average'] == 3);
+        $this->assertEquals(4, $resultMap[1]['mark_average']);
+        $this->assertEquals(5, $resultMap[3]['mark_average']);
+        $this->assertEquals(4, $resultMap[5]['mark_average']);
+        $this->assertEquals(3, $resultMap[6]['mark_average']);
     }
 
     /**
@@ -122,7 +122,7 @@ class CommonUsageTest extends \Codeception\Test\Unit
     public function testCity()
     {
         $cityIds = City::find()->limit(2)->offset(1)->select('id')->column();
-        $this->assertTrue(count($cityIds) == 2);
+        $this->assertCount(2, $cityIds);
 
         $result = QueryRelationManager::select(City::class, 'c')
             ->withMultiple('addresses', Address::class, 'a', 'c', ['city_id' => 'id'])
@@ -131,16 +131,16 @@ class CommonUsageTest extends \Codeception\Test\Unit
             })
             ->all();
 
-        $this->assertTrue(count($result) == 2);
-        $this->assertTrue(array_diff(ArrayHelper::getColumn($result, 'id'), $cityIds) == []);
+        $this->assertCount(2, $result);
+        $this->assertEquals([], array_diff(ArrayHelper::getColumn($result, 'id'), $cityIds));
 
         $resultMap = ArrayHelper::index($result, 'id');
 
-        $this->assertTrue($resultMap[3]['name'] == 'Samara');
-        $this->assertTrue($resultMap[2]['name'] == 'St. Petersburg');
+        $this->assertEquals('Samara', $resultMap[3]['name']);
+        $this->assertEquals('St. Petersburg', $resultMap[2]['name']);
 
-        $this->assertTrue(count($resultMap[3]['addresses']) == 0);
-        $this->assertTrue(count($resultMap[2]['addresses']) == 2);
+        $this->assertCount(0, $resultMap[3]['addresses']);
+        $this->assertCount(2, $resultMap[2]['addresses']);
     }
 
     public function testRawSql()

@@ -8,7 +8,6 @@ use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
 use Smoren\QueryRelationManager\Yii2\QueryRelationDataProvider;
 use Smoren\QueryRelationManager\Yii2\QueryRelationManager;
 use Yii;
-use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 class DataProviderTest extends \Codeception\Test\Unit
@@ -186,7 +185,7 @@ class DataProviderTest extends \Codeception\Test\Unit
      * @param array $correctMap
      * @return bool
      */
-    protected function compareResultWithCorrectMap(array $result, array $correctMap)
+    protected function compareResultWithCorrectMap(array $result, array $correctMap): bool
     {
         $resultMap = [];
         foreach($result as $city) {

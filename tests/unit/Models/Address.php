@@ -20,7 +20,7 @@ class Address extends ActiveRecord
 {
     use ActiveRecordTrait;
 
-    public static function primaryKey()
+    public static function primaryKey(): array
     {
         return ['id', 'city_id'];
     }
@@ -28,7 +28,7 @@ class Address extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'address';
     }
@@ -36,20 +36,26 @@ class Address extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['city_id', 'name'], 'required'],
             [['city_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
+            [
+                ['city_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => City::class,
+                'targetAttribute' => ['city_id' => 'id']
+            ],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -61,7 +67,7 @@ class Address extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getCity()
+    public function getCity(): ActiveQuery
     {
         return $this->hasOne(City::class, ['id' => 'city_id']);
     }
@@ -69,7 +75,7 @@ class Address extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getPlaces()
+    public function getPlaces(): ActiveQuery
     {
         return $this->hasMany(Place::class, ['address_id' => 'id']);
     }

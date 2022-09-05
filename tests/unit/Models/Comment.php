@@ -24,7 +24,7 @@ class Comment extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'comment';
     }
@@ -32,21 +32,27 @@ class Comment extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['place_id', 'username', 'mark', 'text'], 'required'],
             [['place_id', 'mark'], 'integer'],
             [['text'], 'string'],
             [['username'], 'string', 'max' => 255],
-            [['place_id'], 'exist', 'skipOnError' => true, 'targetClass' => Place::class, 'targetAttribute' => ['place_id' => 'id']],
+            [
+                ['place_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Place::class,
+                'targetAttribute' => ['place_id' => 'id']
+            ],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -60,7 +66,7 @@ class Comment extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getPlace()
+    public function getPlace(): ActiveQuery
     {
         return $this->hasOne(Place::class, ['id' => 'place_id']);
     }

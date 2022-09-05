@@ -23,7 +23,7 @@ class Place extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'place';
     }
@@ -31,20 +31,26 @@ class Place extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['address_id', 'name'], 'required'],
             [['address_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
-            [['address_id'], 'exist', 'skipOnError' => true, 'targetClass' => Address::class, 'targetAttribute' => ['address_id' => 'id']],
+            [
+                ['address_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Address::class,
+                'targetAttribute' => ['address_id' => 'id']
+            ],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -56,7 +62,7 @@ class Place extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getComments()
+    public function getComments(): ActiveQuery
     {
         return $this->hasMany(Comment::class, ['place_id' => 'id']);
     }
@@ -64,7 +70,7 @@ class Place extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getAddress()
+    public function getAddress(): ActiveQuery
     {
         return $this->hasOne(Address::class, ['id' => 'address_id']);
     }

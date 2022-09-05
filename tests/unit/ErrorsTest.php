@@ -4,7 +4,6 @@ namespace Smoren\QueryRelationManager\Yii2\Tests\Unit;
 
 use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
 use Smoren\QueryRelationManager\Yii2\QueryRelationManager;
-use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Bad\BadActiveRecordClass;
 use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\Bad\NonActiveRecordClass;
 use Smoren\QueryRelationManager\Yii2\Tests\Unit\Models\City;
 
