@@ -7,20 +7,20 @@ use yii\db\Connection;
 use yii\db\Query;
 
 /**
- * Реализация обертки ActiveQuery для QueryRelationManager
+ * ActiveQuery wrapper implementation for QueryRelationManager
  * @author Smoren <ofigate@gmail.com>
  * @inheritDoc
  */
 class QueryWrapper implements QueryWrapperInterface
 {
     /**
-     * Объект ActiveQuery
+     * ActiveQuery instance
      * @var Query
      */
     protected Query $query;
 
     /**
-     * QueryWrapper constructor.
+     * QueryWrapper constructor
      */
     public function __construct()
     {
@@ -63,7 +63,7 @@ class QueryWrapper implements QueryWrapperInterface
 
     /**
      * @inheritDoc
-     * @param Connection|null $db объект подключения к БД
+     * @param Connection|null $db DB connection instance
      */
     public function all($db = null): array
     {

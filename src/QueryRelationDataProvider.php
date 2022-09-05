@@ -8,13 +8,13 @@ use yii\db\Connection;
 use yii\db\Query;
 
 /**
- * DataProvider для организации постраничной навигации в QueryRelationManager
+ * DataProvider class for building pager navigation for QueryRelationManager queries
  * @author Smoren <ofigate@gmail.com>
  */
 class QueryRelationDataProvider extends BaseDataProvider
 {
     /**
-     * @var QueryRelationManager объект QueryRelationManager
+     * @var QueryRelationManager QueryRelationManager instance
      */
     public QueryRelationManager $queryRelationManager;
 
@@ -25,12 +25,12 @@ class QueryRelationDataProvider extends BaseDataProvider
     public ?Connection $db;
 
     /**
-     * @var string|callable имя столбца с ключом или callback-функция, возвращающие его
+     * @var string|callable table column name of key or callback-function which returns it
      */
     public $key;
 
     /**
-     * @var bool Не считать totalCount
+     * @var bool Flag to prevent total count query
      */
     public bool $withoutTotalCount = false;
 
@@ -44,7 +44,7 @@ class QueryRelationDataProvider extends BaseDataProvider
     }
 
     /**
-     * Prepares the data models that will be made available in the current page.
+     * @inheritDoc
      * @return array<mixed> the available data models
      * @throws QueryRelationManagerException
      */
@@ -107,7 +107,7 @@ class QueryRelationDataProvider extends BaseDataProvider
     }
 
     /**
-     * Prepares the keys associated with the currently available data models.
+     * @inheritDoc
      * @param array<array<string, mixed>> $models the available data models
      * @return array<scalar> the keys
      */
@@ -132,8 +132,7 @@ class QueryRelationDataProvider extends BaseDataProvider
     }
 
     /**
-     * Returns a value indicating the total number of data models in this data provider.
-     * @return int total number of data models in this data provider.
+     * @inheritDoc
      * @throws QueryRelationManagerException
      */
     protected function prepareTotalCount(): int

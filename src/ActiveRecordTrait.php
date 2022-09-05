@@ -5,16 +5,16 @@ namespace Smoren\QueryRelationManager\Yii2;
 use Smoren\QueryRelationManager\Base\QueryRelationManagerException;
 
 /**
- * Trait для упрощения построения запросов с помощью QueryRelationManager
+ * Trait for simplifying building queries of QueryRelationManager from ActiveRecord model
  * @author Smoren <ofigate@gmail.com>
  * @method static string tableName()
  */
 trait ActiveRecordTrait
 {
     /**
-     * Создает запрос QueryRelationManager к таблице модели ActiveRecord, к которой применен трейт
-     * @param string|null $alias псевдоним таблицы в запросе
-     * @return QueryRelationManager
+     * Creates QueryRelationManager query for ActiveRecord model which uses this trait
+     * @param string|null $alias table alias in select query
+     * @return QueryRelationManager new instance of manager
      * @throws QueryRelationManagerException
      */
     public static function select(?string $alias = null): QueryRelationManager

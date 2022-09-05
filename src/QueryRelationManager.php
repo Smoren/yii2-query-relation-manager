@@ -9,26 +9,25 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * Реализация QueryRelationManager для ActiveRecord в Yii2
+ * QueryRelationManager implementation for ActiveRecord в Yii2
  * @author Smoren <ofigate@gmail.com>
  * @inheritDoc
  */
 class QueryRelationManager extends QueryRelationManagerBase
 {
     /**
-     * @var QueryWrapper
+     * @var QueryWrapper ActiveQuery wrapper instance
      */
     protected QueryWrapperInterface $query;
 
     /**
-     * Подключение отношения таблицы к запросу, используя данные из модели ActiveRecord
-     * @param string $relationName имя отношения, прописанное в модели ActiveRecord
-     * @param string $relationAlias псевдоним присоединяемой таблицы
-     * @param string|null $parentAlias псевдоним таблицы, к которой очуществляется присоединение
-     * (по умолчанию — основная таблица запроса)
-     * @param string $joinType тип присоединения ("inner", "left", "right")
-     * @param string|null $extraJoinCondition дополнительные условия присоединения
-     * @param array<string, scalar> $extraJoinParams динамические значения дополнительных условий присодинения
+     * Connects table to query as a relation using ActiveRecord relation config
+     * @param string $relationName relation name from ActiveRecord relation config
+     * @param string $relationAlias alias of joined table
+     * @param string|null $parentAlias alias of table to join to (by default: main table of query)
+     * @param string $joinType join type ("inner", "left", "right")
+     * @param string|null $extraJoinCondition extra join conditions
+     * @param array<string, scalar> $extraJoinParams values of dynamic properties of extra join conditions
      * @return $this
      * @throws QueryRelationManagerException
      */
@@ -104,6 +103,7 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
+     * Returns ActiveQuery wrapper instance
      * @return QueryWrapper
      */
     public function getQuery(): QueryWrapper
@@ -111,6 +111,10 @@ class QueryRelationManager extends QueryRelationManagerBase
         return $this->query;
     }
 
+    /**
+     * @inheritDoc
+     * @return QueryWrapper
+     */
     public function prepare(): QueryWrapper
     {
         /** @var QueryWrapper $wrapper */
@@ -119,9 +123,9 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
-     * Возвращает имя таблицы по классу сущности ActiveRecord
-     * @param string $className имя класса
-     * @return string имя таблицы
+     * Returns table name by it's ActiveRecord class name
+     * @param string $className ActiveRecord class name
+     * @return string table name
      * @throws QueryRelationManagerException
      */
     protected function getTableName(string $className): string
@@ -136,7 +140,7 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
-     * Создает объект запроса
+     * @inheritDoc
      * @return QueryWrapper
      */
     protected function createQuery(): QueryWrapper
@@ -145,10 +149,7 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
-     * Возвращает список полей таблицы
-     * @param string $className имя класса ORM-модели
-     * @return array<string>
-     * @throws QueryRelationManagerException
+     * @inheritDoc
      */
     protected function getTableFields(string $className): array
     {
@@ -166,10 +167,7 @@ class QueryRelationManager extends QueryRelationManagerBase
     }
 
     /**
-     * Возвращает поля первичного ключа таблицы
-     * @param string $className имя класса ORM-модели
-     * @return array<string>
-     * @throws QueryRelationManagerException
+     * @inheritDoc
      */
     protected function getPrimaryKey(string $className): array
     {
